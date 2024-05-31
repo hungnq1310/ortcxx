@@ -63,6 +63,9 @@ target_link_libraries(testService cinnamon)
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 set(CMAKE_LIBRARY_PATH ${LD_PATH} "/usr/lib/x86_64-linux-gnu")
 
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+set(CMAKE_LIBRARY_PATH ${LD_PATH} "/usr/lib/x86_64-linux-gnu")
+
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
