@@ -28,6 +28,7 @@ target_link_libraries(${LIB_NAME} onnxruntime)
 target_include_directories(${LIB_NAME} PUBLIC $<BUILD_INTERFACE:${LIB_HEADERS}> $<INSTALL_INTERFACE:include>)
 # Internally, use #include "abc.h"
 target_include_directories(${LIB_NAME} PRIVATE $<BUILD_INTERFACE:${LIB_HEADERS}/${LIB_NAME}> $<INSTALL_INTERFACE:include/${LIB_NAME}>)
+target_include_directories(${LIB_NAME} PRIVATE $<BUILD_INTERFACE:${LIB_PRIV_HEADERS}> $<INSTALL_INTERFACE:include/${LIB_NAME}>)
 # Set library properties.
 set_target_properties(${LIB_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
