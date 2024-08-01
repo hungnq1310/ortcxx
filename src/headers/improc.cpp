@@ -145,11 +145,11 @@ cv::cuda::GpuMat interpolation(
     else if (mode == "bicubic"){
         interpolationFlag = cv::INTER_CUBIC;
     }
-    else if (mode == "lanczos"){
-        interpolationFlag = cv::INTER_LANCZOS4;
+    else if (mode == "area"){
+        interpolationFlag = cv::INTER_AREA;
     }
     else{
-        throw std::invalid_argument("Invalid interpolation mode. Supported modes are 'nearest', 'bilinear', 'bicubic', and 'lanczos'.");
+        throw std::invalid_argument("Invalid interpolation mode. Supported modes are 'nearest', 'bilinear', 'bicubic', and 'area'.");
     }
     
     cv::cuda::GpuMat output_image;
