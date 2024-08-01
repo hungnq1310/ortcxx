@@ -8,6 +8,9 @@
 #include <opencv2/core/cuda.hpp>
 #include <opencv2/highgui.hpp>
 
+#include <improc.h>
+
+namespace improc {
 
 // ******************************
 // *       SUPPORTED FUNCTIONS
@@ -517,8 +520,7 @@ cv::cuda::GpuMat rotateImage(
  * @return A `cv::cuda::GpuMat` containing bounding box coordinates in (x, y, w, h) format.
  */
 cv::cuda::GpuMat xyxy2xywh(const cv::cuda::GpuMat& x) {
-    cv::cuda::GpuMat y;
-    x.copyTo(y);
+    cv::cuda::GpuMat y(x.size(), x.type());
     cv::cuda::addWeighted(x.colRange(0, 1), 0.5, x.colRange(2, 3), 0.5, 0, y.colRange(0, 1));
     cv::cuda::addWeighted(x.colRange(1, 2), 0.5, x.colRange(3, 4), 0.5, 0, y.colRange(1, 2));
     cv::cuda::subtract(x.colRange(2, 3), x.colRange(0, 1), y.colRange(2, 3));
@@ -539,15 +541,12 @@ cv::cuda::GpuMat xyxy2xywh(const cv::cuda::GpuMat& x) {
  * @return A `cv::cuda::GpuMat` containing bounding box coordinates in (x1, y1, x2, y2) format.
  */
 cv::cuda::GpuMat xywh2xyxy(const cv::cuda::GpuMat& x) {
-    cv::cuda::GpuMat y;
-    x.copyTo(y);
+    cv::cuda::GpuMat y(x.size(), x.type());
     cv::cuda::divide(x.colRange(2, 3), 2, x.colRange(2, 3));
     cv::cuda::divide(x.colRange(3, 4), 2, x.colRange(3, 4));
+    
     cv::cuda::subtract(x.colRange(0, 1), x.colRange(2, 3), y.colRange(0, 1));
     cv::cuda::subtract(x.colRange(1, 2), x.colRange(3, 4), y.colRange(1, 2));
-
-    cv::cuda::divide(x.colRange(2, 3), 2, x.colRange(2, 3));
-    cv::cuda::divide(x.colRange(3, 4), 2, x.colRange(3, 4));
     cv::cuda::add(x.colRange(0, 1), x.colRange(2, 3), y.colRange(2, 3));
     cv::cuda::add(x.colRange(1, 2), x.colRange(3, 4), y.colRange(3, 4));
     //TODO: implement for kpt_label
@@ -695,3 +694,5 @@ cv::cuda::GpuMat xywh2xyxy(const cv::cuda::GpuMat& x) {
 
 //     return resampled_segments;
 // }
+
+}
