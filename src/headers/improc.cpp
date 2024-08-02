@@ -450,19 +450,32 @@ cv::cuda::GpuMat scaleCoords(
     double gain;
     cv::Point2d pad;
 
-    if (ratioPad.first == 0 && ratioPad.second == cv::Point2d(0, 0)) {
-        gain = std::min(static_cast<double>(img1Shape.height) / img0Shape.height, static_cast<double>(img1Shape.width) / img0Shape.width);
-        pad = cv::Point2d((img1Shape.width - img0Shape.width * gain) / 2, (img1Shape.height - img0Shape.height * gain) / 2);
+    if (ratioPad == std::pair<double, cv::Point2d>()) {
+        gain = std::min(
+            static_cast<double>(img1Shape.height) / img0Shape.height, 
+            static_cast<double>(img1Shape.width) / img0Shape.width
+        );
+        pad = cv::Point2d(
+            (img1Shape.height - img0Shape.height * gain) / 2,
+            (img1Shape.width - img0Shape.width * gain) / 2
+        );
     } else {
         gain = ratioPad.first;
         pad = ratioPad.second;
     }
 
     if (!kptLabel) {
+        // Subtract padding and divide by gain for each value of bbox
         cv::cuda::subtract(coords.colRange(0, 1), cv::Scalar(pad.x), coords.colRange(0, 1));
         cv::cuda::subtract(coords.colRange(1, 2), cv::Scalar(pad.y), coords.colRange(1, 2));
+        cv::cuda::subtract(coords.colRange(2, 3), cv::Scalar(pad.x), coords.colRange(2, 3));
+        cv::cuda::subtract(coords.colRange(3, 4), cv::Scalar(pad.y), coords.colRange(3, 4));
+
         cv::cuda::divide(coords.colRange(0, 1), cv::Scalar(gain), coords.colRange(0, 1));
         cv::cuda::divide(coords.colRange(1, 2), cv::Scalar(gain), coords.colRange(1, 2));
+        cv::cuda::divide(coords.colRange(2, 3), cv::Scalar(gain), coords.colRange(2, 3));
+        cv::cuda::divide(coords.colRange(3, 4), cv::Scalar(gain), coords.colRange(3, 4));
+        
         clipCoords(coords, img0Shape);
     } else {
         for (int i = 0; i < coords.cols; i += step) {
