@@ -144,7 +144,7 @@ bool test_4(){
     int pass = 4;
     assert (maxScore90 >= 0.999), (pass - 1);
     assert (maxScore180 >= 0.999), (pass - 1);
-    assert (maxScore270 >= 0.99), (pass - 1);
+    assert (maxScore270 >= 0.99), (pass - 1); //! only 0.99
     assert (maxScore90_neg >= 0.999), (pass - 1);
 
     if (pass == 4){
@@ -159,9 +159,63 @@ bool test_4(){
 bool test_5(){
     //test equalize hist
 
+    //read image    
+    cv::Mat image = cv::imread("../photo_2024-07-19_15-11-25.jpg", cv::IMREAD_COLOR);
+    cv::cuda::GpuMat d_image;
+    d_image.upload(image);
 
+    // Measure the time taken to equalize the image
+    auto start = std::chrono::high_resolution_clock::now();
+    cv::cuda::GpuMat output = improc::histEqualize(d_image, false, true);
+    cv::cuda::GpuMat output_clahe = improc::histEqualize(d_image, true, true);
+    cv::cuda::GpuMat output_bgr = improc::histEqualize(d_image, false, false);
+    cv::cuda::GpuMat output_clahe_bgr = improc::histEqualize(d_image, true, false);
+    auto end = std::chrono::high_resolution_clock::now();
 
-    return true;
+    // Calculate the duration
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    std::cout << "Time taken to equalize the image: " << duration.count() << " milliseconds" << std::endl;
+
+    //read ref image
+    cv::Mat ref_clahe = cv::imread("../assert/hisEqual/ref_hist_equalize_clahe.jpg", cv::IMREAD_COLOR);
+    cv::Mat ref_wo_clahe = cv::imread("../assert/hisEqual/ref_hist_equalize_wo_clahe.jpg", cv::IMREAD_COLOR);
+    cv::Mat ref_wo_clahe_rgb = cv::imread("../assert/hisEqual/ref_hist_equalize_wo_clahe_rgb.jpg", cv::IMREAD_COLOR);
+    cv::Mat ref_clahe_rgb = cv::imread("../assert/hisEqual/ref_hist_equalize_clahe_rgb.jpg", cv::IMREAD_COLOR);
+
+    // Check if the images are the same
+    cv::Mat h_output;
+    output.download(h_output);
+    cv::Mat h_output_clahe;
+    output_clahe.download(h_output_clahe);
+    cv::Mat h_output_bgr;
+    output_bgr.download(h_output_bgr);
+    cv::Mat h_output_clahe_bgr;
+    output_clahe_bgr.download(h_output_clahe_bgr);
+
+    double maxScoreClahe = compute_similarity(h_output_clahe, ref_clahe);
+    double maxScoreWoClahe = compute_similarity(h_output, ref_wo_clahe);
+    double maxScoreWoClaheRGB = compute_similarity(h_output_bgr, ref_wo_clahe_rgb);
+    double maxScoreClaheRGB = compute_similarity(h_output_clahe_bgr, ref_clahe_rgb);
+
+    // std::cout << "maxScoreClahe: " << maxScoreClahe << std::endl;
+    // std::cout << "maxScoreWoClahe: " << maxScoreWoClahe << std::endl;
+    // std::cout << "maxScoreWoClaheRGB: " << maxScoreWoClaheRGB << std::endl;
+    // std::cout << "maxScoreClaheRGB: " << maxScoreClaheRGB << std::endl;
+
+    //log and check score
+    int pass = 4;
+    assert (maxScoreClahe >= 0.999), (pass - 1);
+    assert (maxScoreWoClahe >= 0.999), (pass - 1);
+    assert (maxScoreWoClaheRGB >= 0.99), (pass - 1); //! only 0.99
+    assert (maxScoreClaheRGB >= 0.99), (pass - 1); //!
+
+    if (pass == 4){
+        std::cout << "Test 5 passed" << std::endl;
+        return true;
+    } else {
+        std::cout << "Test 5 failed, only "<< pass << "/4" << std::endl;
+        return false;
+    }
 }
 
 bool test_6(){
@@ -240,6 +294,7 @@ bool test_9(){
 int main(){
     test_3();
     test_4();
+    test_5();
     test_6();
     return 0;
 }
