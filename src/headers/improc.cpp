@@ -407,6 +407,22 @@ cv::cuda::GpuMat flipHorizontal(
     return flippedImage;
 }
 
+/**
+ * @brief Flips the input image both horizontally and vertically.
+ * 
+ * This function flips the input image around both the x-axis and y-axis, resulting in a full flip.
+ * 
+ * @param inputImage The input image to be flipped. It should be a `cv::cuda::GpuMat` object.
+ * 
+ * @return A `cv::cuda::GpuMat` object containing the fully flipped image.
+ */
+cv::cuda::GpuMat flipFull(
+    const cv::cuda::GpuMat& inputImage
+){
+    cv::cuda::GpuMat flippedImage;
+    cv::cuda::flip(inputImage, flippedImage, -1); // 1 means flipping around the y-axis (horizontal flip)
+    return flippedImage;
+}
 
 /**
  * @brief Scales coordinates from one image shape to another, optionally adjusting for padding and keypoint labels.
