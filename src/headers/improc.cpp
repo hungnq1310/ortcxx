@@ -385,7 +385,7 @@ cv::cuda::GpuMat flipVertical(
     const cv::cuda::GpuMat& inputImage
 ){
     cv::cuda::GpuMat flippedImage;
-    cv::cuda::flip(inputImage, flippedImage, 0); // 0 means flipping around the x-axis (vertical flip)
+    cv::cuda::flip(inputImage, flippedImage, 1); // 1 means flipping around the x-axis (vertical flip)
     return flippedImage;
 }
 
@@ -403,7 +403,7 @@ cv::cuda::GpuMat flipHorizontal(
     const cv::cuda::GpuMat& inputImage
 ){
     cv::cuda::GpuMat flippedImage;
-    cv::cuda::flip(inputImage, flippedImage, 1); // 1 means flipping around the y-axis (horizontal flip)
+    cv::cuda::flip(inputImage, flippedImage, 0); // 0 means flipping around the y-axis (horizontal flip)
     return flippedImage;
 }
 
