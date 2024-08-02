@@ -329,6 +329,64 @@ bool test_9(){
 
 bool test_10(){
     // test resizeWithPad
+
+    //read image
+    cv::Mat image = cv::imread("../photo_2024-07-19_15-11-25.jpg", cv::IMREAD_COLOR);
+    cv::cuda::GpuMat d_image;
+    d_image.upload(image);
+
+    // Measure the time taken to resize the image
+    auto start = std::chrono::high_resolution_clock::now();
+    cv::cuda::GpuMat output = improc::resizeWithPad(
+        d_image, cv::Size(500, 768), "bilinear", 0
+    );
+    cv::cuda::GpuMat output_2 = improc::resizeWithPad(
+        d_image, cv::Size(500, 768), "bicubic", 0
+    );
+    cv::cuda::GpuMat output_3 = improc::resizeWithPad(
+        d_image, cv::Size(500, 768), "nearest", 0
+    );
+    auto end = std::chrono::high_resolution_clock::now();
+
+    // Calculate the duration
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    std::cout << "Time taken to resize the image: " << duration.count() << " milliseconds" << std::endl;
+
+    //read ref image
+    cv::Mat ref_bicubic = cv::imread("../assert/resize-pad/ref_resize_pad_bicubic.jpg", cv::IMREAD_COLOR);
+    cv::Mat ref_bilinear = cv::imread("../assert/resize-pad/ref_resize_pad_bilinear.jpg", cv::IMREAD_COLOR);
+    cv::Mat ref_nearest = cv::imread("../assert/resize-pad/ref_resize_pad_nearest.jpg", cv::IMREAD_COLOR);
+
+    // Check if the images are the same
+    cv::Mat h_output;
+    output.download(h_output);
+    cv::Mat h_output_2;
+    output_2.download(h_output_2);
+    cv::Mat h_output_3;
+    output_3.download(h_output_3);
+
+    double maxScoreBilinear = compute_similarity(h_output, ref_bilinear);
+    double maxScoreBicubic = compute_similarity(h_output_2, ref_bicubic);
+    double maxScoreNearest = compute_similarity(h_output_3, ref_nearest);
+
+    std::cout << "maxScoreBilinear: " << maxScoreBilinear << std::endl;
+    std::cout << "maxScoreBicubic: " << maxScoreBicubic << std::endl;
+    std::cout << "maxScoreNearest: " << maxScoreNearest << std::endl;
+
+    //log and check score
+    int pass = 3;
+    assert (maxScoreBilinear >= 0.999), (pass - 1);
+    assert (maxScoreBicubic >= 0.999), (pass - 1);
+    assert (maxScoreNearest >= 0.99), (pass - 1); //! only 0.99
+
+    if (pass == 3){
+        std::cout << "Test 10 passed" << std::endl;
+        return true;
+    } else {
+        std::cout << "Test 10 failed, only "<< pass << "/3" << std::endl;
+        return false;
+    }
+
     return true;
 }
 
@@ -344,5 +402,6 @@ int main(){
     test_5();
     test_6();
     test_9();
+    test_10();
     return 0;
 }
