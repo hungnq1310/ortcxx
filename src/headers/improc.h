@@ -62,6 +62,9 @@ namespace improc {
     cv::cuda::GpuMat flipHorizontal(
         const cv::cuda::GpuMat& inputImage
     );
+    cv::cuda::GpuMat flipFull(
+        const cv::cuda::GpuMat& inputImage
+    );
     cv::cuda::GpuMat scaleCoords(
         cv::cuda::GpuMat& coords, 
         const cv::Size& img1Shape, 
