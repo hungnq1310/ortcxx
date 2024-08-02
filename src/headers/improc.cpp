@@ -495,16 +495,24 @@ cv::cuda::GpuMat rotateImage(
         throw std::invalid_argument("Invalid interpolation mode. Supported modes are 'nearest', 'bilinear', 'bicubic'.");
     }
 
-    cv::cuda::GpuMat rotatedImage;
-    cv::cuda::rotate(
-        inputImage, 
-        rotatedImage, 
-        cv::Size(size.height, size.width), 
-        angle, 
-        size.height-1, 
-        0, 
-        interpolationFlag
+    // get rotation matrix
+    cv::Point2f center_coord(
+        static_cast<float>(inputImage.cols-1) / 2.0f,
+        static_cast<float>(inputImage.rows-1) / 2.0f
     );
+    cv::Mat rotation_matix = getRotationMatrix2D(
+        center_coord,
+        static_cast<double>(-angle),
+        1.0
+    );
+    // determine bounding rectangle, center not relevant
+    cv::Rect2f bbox = cv::RotatedRect(cv::Point2f(), size, angle).boundingRect2f();
+    // adjust transformation matrix
+    rotation_matix.at<double>(0,2) += bbox.width/2.0 - inputImage.cols/2.0;
+    rotation_matix.at<double>(1,2) += bbox.height/2.0 - inputImage.rows/2.0;
+
+    cv::cuda::GpuMat rotatedImage;
+    cv::cuda::warpAffine(inputImage, rotatedImage, rotation_matix, bbox.size());
     return rotatedImage;
 }
 
