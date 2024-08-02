@@ -223,50 +223,6 @@ cv::cuda::GpuMat resizeWithPad(
 }
 
 
-/**
- * @brief Scales an image by a given ratio and optionally pads it to maintain a specific shape.
- *
- * This function scales the input image by the specified ratio using the given interpolation mode.
- * If the `sameShape` parameter is false, the function pads the resized image to ensure its dimensions are multiples of `gs`.
- * The padding is done with a constant value (default is a gray color).
- *
- * @param inputImage The input image to be scaled. It should be a `cv::cuda::GpuMat` object.
- * @param ratio The scaling ratio. Default is 1.0, which means no scaling.
- * @param mode The interpolation mode to be used for resizing (e.g., "bilinear", "nearest").
- * @param sameShape A boolean flag indicating whether to maintain the original shape. If false, the image is padded to the nearest multiple of `gs`.
- * @param gs The grid size to which the image dimensions should be padded. Default is 32.
- *
- * @return A `cv::cuda::GpuMat` object containing the scaled (and possibly padded) image.
- */
-cv::cuda::GpuMat scaleImage(
-    const cv::cuda::GpuMat& inputImage, 
-    double ratio, 
-    const std::string& mode, 
-    bool sameShape, 
-    int gridSize
-){
-    if (ratio == 1.0){
-        return inputImage;
-    }
-    
-    int h = inputImage.rows;
-    int w = inputImage.cols;
-    cv::Size newSize(static_cast<int>(h * ratio), static_cast<int>(w * ratio));
-
-    cv::cuda::GpuMat resizedImage;
-    interpolation(inputImage, newSize, mode).copyTo(resizedImage);
-
-    if (!sameShape){
-        h = static_cast<int>(std::ceil(h * ratio / gridSize) * gridSize);
-        w = static_cast<int>(std::ceil(w * ratio / gridSize) * gridSize);
-    }
-
-    cv::Size targetSize = cv::Size(w, h);
-    cv::cuda::GpuMat paddedImage;
-    paddedImage = padImageTopLeft(resizedImage, targetSize, cv::Scalar(0.447 * 255, 0.447 * 255, 0.447 * 255));
-    return paddedImage;
-}
-
 
 /**
  * @brief Augments the HSV values of an input image by applying random gains to the hue, saturation, and value channels.

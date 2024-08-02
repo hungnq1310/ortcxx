@@ -38,13 +38,6 @@ namespace improc {
         const std::string& mode, 
         int maxUpscalingSize
     );
-    cv::cuda::GpuMat scaleImage(
-        const cv::cuda::GpuMat& inputImage, 
-        double ratio, 
-        const std::string& mode, 
-        bool sameShape, 
-        int gridSize
-    );
     cv::cuda::GpuMat augmentHSV(
         const cv::cuda::GpuMat& inputImage, 
         float hgain, 
