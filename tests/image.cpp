@@ -197,10 +197,6 @@ bool test_5(){
     double maxScoreWoClaheRGB = compute_similarity(h_output_bgr, ref_wo_clahe_rgb);
     double maxScoreClaheRGB = compute_similarity(h_output_clahe_bgr, ref_clahe_rgb);
 
-    // std::cout << "maxScoreClahe: " << maxScoreClahe << std::endl;
-    // std::cout << "maxScoreWoClahe: " << maxScoreWoClahe << std::endl;
-    // std::cout << "maxScoreWoClaheRGB: " << maxScoreWoClaheRGB << std::endl;
-    // std::cout << "maxScoreClaheRGB: " << maxScoreClaheRGB << std::endl;
 
     //log and check score
     int pass = 4;
@@ -255,10 +251,6 @@ bool test_6(){
     double maxScoreH = compute_similarity(h_output_flip_h, ref_h);
     double maxScoreVH = compute_similarity(h_output_flip_v_h, ref_v_h);
 
-    // std::cout << "maxScoreV: " << maxScoreV << std::endl;
-    // std::cout << "maxScoreH: " << maxScoreH << std::endl;
-    // std::cout << "maxScoreVH: " << maxScoreVH << std::endl;
-
     //log and check score
     int pass = 3;
     assert (maxScoreV >= 0.999), (pass - 1);
@@ -306,13 +298,7 @@ bool test_9(){
     // Check if the images are the same
     cv::Mat h_output;
     output.download(h_output);
-
-    std::cout << "h_output size: " << h_output.size() << std::endl;
-    std::cout << "ref size: " << ref.size() << std::endl;
-
-
     double maxScore = compute_similarity(h_output, ref);
-    std::cout << "maxScore: " << maxScore << std::endl;
 
     //log and check score
     assert (maxScore >= 0.999);
@@ -369,10 +355,6 @@ bool test_10(){
     double maxScoreBicubic = compute_similarity(h_output_2, ref_bicubic);
     double maxScoreNearest = compute_similarity(h_output_3, ref_nearest);
 
-    std::cout << "maxScoreBilinear: " << maxScoreBilinear << std::endl;
-    std::cout << "maxScoreBicubic: " << maxScoreBicubic << std::endl;
-    std::cout << "maxScoreNearest: " << maxScoreNearest << std::endl;
-
     //log and check score
     int pass = 3;
     assert (maxScoreBilinear >= 0.999), (pass - 1);
@@ -387,11 +369,6 @@ bool test_10(){
         return false;
     }
 
-    return true;
-}
-
-bool test_11(){
-    // test scaleImage
     return true;
 }
 
