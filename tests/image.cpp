@@ -275,20 +275,67 @@ bool test_6(){
 }
 
 bool test_7(){
-    //test scale Image
+    //test augmentHSV
     return true;
 }
 
-bool test_8(){
-    //test scale coords
-    return true;
-}
 
 bool test_9(){
-    //test augment HSV
+    // test padImageTopLeft
+    
+    //read image
+    cv::Mat image = cv::imread("../photo_2024-07-19_15-11-25.jpg", cv::IMREAD_COLOR);
+    cv::cuda::GpuMat d_image;
+    d_image.upload(image);
+
+    // Measure the time taken to pad the image
+    auto start = std::chrono::high_resolution_clock::now();
+    cv::cuda::GpuMat output = improc::padImageTopLeft(
+        d_image, cv::Size(1400, 1280), //! heigt, width
+        cv::Scalar(0, 0, 0)
+    );
+    auto end = std::chrono::high_resolution_clock::now();
+
+    // Calculate the duration
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    std::cout << "Time taken to pad the image: " << duration.count() << " milliseconds" << std::endl;
+
+    //read ref image
+    cv::Mat ref = cv::imread("../assert/resize-pad/ref_pad_image.jpg", cv::IMREAD_COLOR);
+
+    // Check if the images are the same
+    cv::Mat h_output;
+    output.download(h_output);
+
+    std::cout << "h_output size: " << h_output.size() << std::endl;
+    std::cout << "ref size: " << ref.size() << std::endl;
+
+
+    double maxScore = compute_similarity(h_output, ref);
+    std::cout << "maxScore: " << maxScore << std::endl;
+
+    //log and check score
+    assert (maxScore >= 0.999);
+
+    if (maxScore >= 0.999){
+        std::cout << "Test 9 passed" << std::endl;
+        return true;
+    } else {
+        std::cout << "Test 9 failed" << std::endl;
+        return false;
+    }
     return true;
 }
 
+bool test_10(){
+    // test resizeWithPad
+    return true;
+}
+
+bool test_11(){
+    // test scaleImage
+    return true;
+}
 
 
 int main(){
@@ -296,5 +343,6 @@ int main(){
     test_4();
     test_5();
     test_6();
+    test_9();
     return 0;
 }
