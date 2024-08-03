@@ -63,7 +63,6 @@ namespace improc {
         const cv::Size& img1Shape, 
         const cv::Size& img0Shape, 
         std::pair<double, cv::Point2d> ratioPad, 
-        bool kptLabel, 
         int step
     );
     cv::cuda::GpuMat rotateImage(
