@@ -96,14 +96,14 @@ void clipCoords(cv::cuda::GpuMat& boxes, const cv::Size& imgShape, int step = 2)
 
     // Clip x coordinates
     for (int i = 0; i < boxes.cols; i += step) {
-        cv::cuda::max(boxes.colRange(i, i + 1), minVal.colRange(i, i + 1), boxes.colRange(i, i + 1));
-        cv::cuda::min(boxes.colRange(i, i + 1), maxValX.colRange(i, i + 1), boxes.colRange(i, i + 1));
+        cv::cuda::max(boxes.col(i), minVal.col(i), boxes.col(i));
+        cv::cuda::min(boxes.col(i), maxValX.col(i), boxes.col(i));
     }
 
     // Clip y coordinates
     for (int i = 1; i < boxes.cols; i += step) {
-        cv::cuda::max(boxes.colRange(i, i + 1), minVal.colRange(i, i + 1), boxes.colRange(i, i + 1));
-        cv::cuda::min(boxes.colRange(i, i + 1), maxValY.colRange(i, i + 1), boxes.colRange(i, i + 1));
+        cv::cuda::max(boxes.col(i), minVal.col(i), boxes.col(i));
+        cv::cuda::min(boxes.col(i), maxValX.col(i), boxes.col(i));
     }
 }
 
@@ -400,7 +400,6 @@ cv::cuda::GpuMat scaleCoords(
     const cv::Size& img1Shape, 
     const cv::Size& img0Shape, 
     std::pair<double, cv::Point2d> ratioPad = {}, 
-    bool kptLabel = false, 
     int step = 2
 ){
     double gain;
@@ -420,29 +419,16 @@ cv::cuda::GpuMat scaleCoords(
         pad = ratioPad.second;
     }
 
-    if (!kptLabel) {
-        // Subtract padding and divide by gain for each value of bbox
-        cv::cuda::subtract(coords.colRange(0, 1), cv::Scalar(pad.x), coords.colRange(0, 1));
-        cv::cuda::subtract(coords.colRange(1, 2), cv::Scalar(pad.y), coords.colRange(1, 2));
-        cv::cuda::subtract(coords.colRange(2, 3), cv::Scalar(pad.x), coords.colRange(2, 3));
-        cv::cuda::subtract(coords.colRange(3, 4), cv::Scalar(pad.y), coords.colRange(3, 4));
-
-        cv::cuda::divide(coords.colRange(0, 1), cv::Scalar(gain), coords.colRange(0, 1));
-        cv::cuda::divide(coords.colRange(1, 2), cv::Scalar(gain), coords.colRange(1, 2));
-        cv::cuda::divide(coords.colRange(2, 3), cv::Scalar(gain), coords.colRange(2, 3));
-        cv::cuda::divide(coords.colRange(3, 4), cv::Scalar(gain), coords.colRange(3, 4));
-        
-        clipCoords(coords, img0Shape);
-    } else {
-        for (int i = 0; i < coords.cols; i += step) {
-            cv::cuda::subtract(coords.colRange(i, i + 1), cv::Scalar(pad.x), coords.colRange(i, i + 1));
-            cv::cuda::subtract(coords.colRange(i + 1, i + 2), cv::Scalar(pad.y), coords.colRange(i + 1, i + 2));
-            cv::cuda::divide(coords.colRange(i, i + 1), cv::Scalar(gain), coords.colRange(i, i + 1));
-            cv::cuda::divide(coords.colRange(i + 1, i + 2), cv::Scalar(gain), coords.colRange(i + 1, i + 2));
-        }
-        clipCoords(coords, img0Shape, step);
+    // Scale the coordinates
+    for (int i = 0; i < coords.cols; i += step) {
+        cv::cuda::subtract(coords.col(i), cv::Scalar(pad.x), coords.col(i));
+        cv::cuda::subtract(coords.col(i + 1), cv::Scalar(pad.y), coords.col(i + 1));
+        cv::cuda::divide(coords.col(i), cv::Scalar(gain), coords.col(i));
+        cv::cuda::divide(coords.col(i + 1), cv::Scalar(gain), coords.col(i + 1));
     }
 
+    // Clip the coordinates
+    clipCoords(coords, img0Shape, step);
     return coords;
 }
 
@@ -514,10 +500,10 @@ cv::cuda::GpuMat rotateImage(
  */
 cv::cuda::GpuMat xyxy2xywh(const cv::cuda::GpuMat& x) {
     cv::cuda::GpuMat y(x.size(), x.type());
-    cv::cuda::addWeighted(x.colRange(0, 1), 0.5, x.colRange(2, 3), 0.5, 0, y.colRange(0, 1));
-    cv::cuda::addWeighted(x.colRange(1, 2), 0.5, x.colRange(3, 4), 0.5, 0, y.colRange(1, 2));
-    cv::cuda::subtract(x.colRange(2, 3), x.colRange(0, 1), y.colRange(2, 3));
-    cv::cuda::subtract(x.colRange(3, 4), x.colRange(1, 2), y.colRange(3, 4));
+    cv::cuda::addWeighted(x.col(0), 0.5, x.col(2), 0.5, 0, y.col(0));
+    cv::cuda::addWeighted(x.col(1), 0.5, x.col(3), 0.5, 0, y.col(1));
+    cv::cuda::subtract(x.col(2), x.col(0), y.col(2));
+    cv::cuda::subtract(x.col(3), x.col(1), y.col(3));
     //TODO: implement for kpt_label
     return y;
 }
@@ -535,13 +521,13 @@ cv::cuda::GpuMat xyxy2xywh(const cv::cuda::GpuMat& x) {
  */
 cv::cuda::GpuMat xywh2xyxy(const cv::cuda::GpuMat& x) {
     cv::cuda::GpuMat y(x.size(), x.type());
-    cv::cuda::divide(x.colRange(2, 3), 2, x.colRange(2, 3));
-    cv::cuda::divide(x.colRange(3, 4), 2, x.colRange(3, 4));
+    cv::cuda::divide(x.col(2), 2, x.col(2));
+    cv::cuda::divide(x.col(3), 2, x.col(3));
     
-    cv::cuda::subtract(x.colRange(0, 1), x.colRange(2, 3), y.colRange(0, 1));
-    cv::cuda::subtract(x.colRange(1, 2), x.colRange(3, 4), y.colRange(1, 2));
-    cv::cuda::add(x.colRange(0, 1), x.colRange(2, 3), y.colRange(2, 3));
-    cv::cuda::add(x.colRange(1, 2), x.colRange(3, 4), y.colRange(3, 4));
+    cv::cuda::subtract(x.col(0), x.col(2), y.col(0));
+    cv::cuda::subtract(x.col(1), x.col(3), y.col(1));
+    cv::cuda::add(x.col(0), x.col(2), y.col(2));
+    cv::cuda::add(x.col(1), x.col(3), y.col(3));
     //TODO: implement for kpt_label
     return y;
 }
