@@ -277,6 +277,7 @@ bool test_7(){
     // Calculate the duration
     auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
     std::cout << "Time taken to augment the image: " << duration.count() << " milliseconds" << std::endl;
+    std::cout << "Test 7 passed" << std::endl;
 
     // Display the augmented image
     // cv::Mat h_output;

@@ -83,9 +83,6 @@ bool test_2(){
     cv::Mat reference_output = cv::Mat(1, 4, CV_64F, ref_data);
     reference_output.inv();
 
-    std::cout << "Reference output: " << reference_output << std::endl;
-    std::cout << "Result: " << result << std::endl;
-
     // Compare the result with the reference output
     cv::Mat diff;
     cv::absdiff(result, reference_output, diff);
