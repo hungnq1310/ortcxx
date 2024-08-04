@@ -269,23 +269,21 @@ cv::cuda::GpuMat augmentHSV(
         lut_sat.at<uchar>(i) = static_cast<uchar>(std::min(std::max(i * randomeHSV[1], 0.0f), 255.0f));
         lut_val.at<uchar>(i) = static_cast<uchar>(std::min(std::max(i * randomeHSV[2], 0.0f), 255.0f));
     }
-    // cv::cuda::GpuMat d_lut_hue, d_lut_sat, d_lut_val;
-    // d_lut_hue.upload(lut_hue);
-    // d_lut_sat.upload(lut_sat);
-    // d_lut_val.upload(lut_val);
-    cv::cuda::createLookUpTable(lut_hue);
-    cv::cuda::createLookUpTable(lut_sat);
-    cv::cuda::createLookUpTable(lut_val);
 
-    cv::LUT(hsvChannels[0], lut_hue, hsvChannels[0]);
-    cv::LUT(hsvChannels[1], lut_sat, hsvChannels[1]);
-    cv::LUT(hsvChannels[2], lut_val, hsvChannels[2]);
+    // Create pointer LUT
+    cv::Ptr ptr_h = cv::cuda::createLookUpTable(lut_hue);
+    cv::Ptr pth_s = cv::cuda::createLookUpTable(lut_sat);
+    cv::Ptr pth_v = cv::cuda::createLookUpTable(lut_val);
 
+    //Transform the hsv channels
+    ptr_h->transform(hsvChannels[0], hsvChannels[0]);
+    pth_s->transform(hsvChannels[1], hsvChannels[1]);
+    pth_v->transform(hsvChannels[2], hsvChannels[2]);
 
     //Merge the hsv channels
-    cv::cuda::GpuMat outputImage = inputImage.clone();
+    cv::cuda::GpuMat outputImage;
     cv::cuda::merge(hsvChannels, hsvImage);
-    cv::cuda::cvtColor(hsvChannels, outputImage, cv::COLOR_HSV2BGR);
+    cv::cuda::cvtColor(hsvImage, outputImage, cv::COLOR_HSV2BGR);
     return outputImage;
 }
 
