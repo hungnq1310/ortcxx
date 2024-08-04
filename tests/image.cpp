@@ -135,11 +135,6 @@ bool test_4(){
     double maxScore270 = compute_similarity(h_output_rotate_270, ref_270);
     double maxScore90_neg = compute_similarity(h_output_rotate_90_neg, ref_270);
 
-    // std::cout << "maxScore90: " << maxScore90 << std::endl;
-    // std::cout << "maxScore180: " << maxScore180 << std::endl;
-    // std::cout << "maxScore270: " << maxScore270 << std::endl;
-    // std::cout << "maxScore90_neg: " << maxScore90_neg << std::endl;
-
     //log and check score
     int pass = 4;
     assert (maxScore90 >= 0.999), (pass - 1);
@@ -284,10 +279,10 @@ bool test_7(){
     std::cout << "Time taken to augment the image: " << duration.count() << " milliseconds" << std::endl;
 
     // Display the augmented image
-    cv::Mat h_output;
-    output.download(h_output);
-    cv::imshow("Augmented Image", h_output);
-    cv::waitKey(0);
+    // cv::Mat h_output;
+    // output.download(h_output);
+    // cv::imshow("Augmented Image", h_output);
+    // cv::waitKey(0);
     
     return true;
 }
