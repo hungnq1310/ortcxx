@@ -268,6 +268,27 @@ bool test_6(){
 
 bool test_7(){
     //test augmentHSV
+
+    //read image
+    cv::Mat image = cv::imread("../photo_2024-07-19_15-11-25.jpg", cv::IMREAD_COLOR);
+    cv::cuda::GpuMat d_image;
+    d_image.upload(image);
+
+    // Measure the time taken to augment the image
+    auto start = std::chrono::high_resolution_clock::now();
+    cv::cuda::GpuMat output = improc::augmentHSV(d_image, 0.5, 0.5, 0.5);
+    auto end = std::chrono::high_resolution_clock::now();
+
+    // Calculate the duration
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    std::cout << "Time taken to augment the image: " << duration.count() << " milliseconds" << std::endl;
+
+    // Display the augmented image
+    cv::Mat h_output;
+    output.download(h_output);
+    cv::imshow("Augmented Image", h_output);
+    cv::waitKey(0);
+    
     return true;
 }
 
@@ -378,6 +399,7 @@ int main(){
     test_4();
     test_5();
     test_6();
+    test_7();
     test_9();
     test_10();
     return 0;
