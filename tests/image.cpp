@@ -168,7 +168,7 @@ bool test_5(){
     auto end = std::chrono::high_resolution_clock::now();
 
     // Calculate the duration
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+    std::chrono::duration<double> duration = end - start;
     std::cout << "Time taken to equalize the image: " << duration.count() << " milliseconds" << std::endl;
 
     //read ref image
@@ -226,8 +226,8 @@ bool test_6(){
     auto end = std::chrono::high_resolution_clock::now();
 
     // Calculate the duration
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    std::cout << "Time taken to flip the image: " << duration.count() << " milliseconds" << std::endl;
+    std::chrono::duration<double> duration = end - start;
+    std::cout << "Time taken to flip the image: " << duration.count() << " seconds" << std::endl;
 
     //read ref image
     cv::Mat ref_v = cv::imread("../assert/flip/ref_flip_left-right.jpg", cv::IMREAD_COLOR);
@@ -275,8 +275,8 @@ bool test_7(){
     auto end = std::chrono::high_resolution_clock::now();
 
     // Calculate the duration
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    std::cout << "Time taken to augment the image: " << duration.count() << " milliseconds" << std::endl;
+    std::chrono::duration<double> duration = end - start;
+    std::cout << "Time taken to augment the image: " << duration.count() << " seconds" << std::endl;
     std::cout << "Test 7 passed" << std::endl;
 
     // Display the augmented image
@@ -306,8 +306,8 @@ bool test_9(){
     auto end = std::chrono::high_resolution_clock::now();
 
     // Calculate the duration
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    std::cout << "Time taken to pad the image: " << duration.count() << " milliseconds" << std::endl;
+    std::chrono::duration<double> duration = end - start;
+    std::cout << "Time taken to pad the image: " << duration.count() << " seconds" << std::endl;
 
     //read ref image
     cv::Mat ref = cv::imread("../assert/resize-pad/ref_pad_image.jpg", cv::IMREAD_COLOR);
@@ -352,8 +352,8 @@ bool test_10(){
     auto end = std::chrono::high_resolution_clock::now();
 
     // Calculate the duration
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
-    std::cout << "Time taken to resize the image: " << duration.count() << " milliseconds" << std::endl;
+    std::chrono::duration<double> duration = end - start;
+    std::cout << "Time taken to resize the image: " << duration.count() << " seconds" << std::endl;
 
     //read ref image
     cv::Mat ref_bicubic = cv::imread("../assert/resize-pad/ref_resize_pad_bicubic.jpg", cv::IMREAD_COLOR);

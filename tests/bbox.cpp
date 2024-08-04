@@ -63,8 +63,6 @@ bool test_2(){
     cv::cuda::GpuMat d_box;
     d_box.upload(input_cpu);
 
-    std::cout << "Input: " << input_cpu << std::endl;
-
     // Measure the time taken to rotate the image
     auto start = std::chrono::high_resolution_clock::now();
     cv::cuda::GpuMat output = improc::xywh2xyxy(d_box);
