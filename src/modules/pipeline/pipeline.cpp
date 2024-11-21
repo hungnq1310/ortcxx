@@ -1,21 +1,27 @@
 #include "pipeline.h"
 #include <iostream>
+#include <stdexcept>
 
-Pipeline::Pipeline(const std::string& model_path)
+Pipeline::Pipeline(std::shared_ptr<Model> model)
     : env(ORT_LOGGING_LEVEL_WARNING, "Pipeline"),
       session_options(),
-      session(env, model_path.c_str(), session_options) {
+      session(env, model->GetModelPath().c_str(), session_options) {
     // Additional initialization if needed
 }
 
-std::vector<float> Pipeline::preprocess(const std::vector<float>& input) {
+Ort::Value Pipeline::preprocess(Ort::Value input) {
     // Default implementation: return the input as is
     std::cout << "Preprocessing..." << std::endl;
     return input;
 }
 
-std::vector<float> Pipeline::postprocess(const std::vector<float>& input) {
+Ort::Value Pipeline::postprocess(Ort::Value input) {
     // Default implementation: return the input as is
     std::cout << "Postprocessing..." << std::endl;
     return input;
+}
+
+Ort::Value Pipeline::inference(Ort::Value input) {
+    // Raise an error if this method is not implemented in a derived class
+    throw std::runtime_error("Inference method not implemented");
 }
