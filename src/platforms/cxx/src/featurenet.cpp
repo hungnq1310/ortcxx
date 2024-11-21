@@ -238,7 +238,7 @@ Ort::Value FeatureNet::postprocess(Ort::Value input) {
 Ort::Value FeatureNet::inference(Ort::Value input) {
     // Run the model with the preprocessed input
     Ort::Value preprocessed_input = preprocess(input);
-    Ort::Value output = session.Run(Ort::RunOptions{nullptr}, input_names.data(), &preprocessed_input, 1, output_names.data(), 1);
+    Ort::Value output = model->run(preprocessed_input);
     // Postprocess the output
     Ort::Value postprocessed_output = postprocess(output);
     return postprocessed_output;
