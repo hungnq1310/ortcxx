@@ -2,7 +2,7 @@
 #include <iostream>
 #include <stdexcept>
 
-Pipeline::Pipeline(std::shared_ptr<Model> model)
+Pipeline::Pipeline(Model model)
     : env(ORT_LOGGING_LEVEL_WARNING, "Pipeline"),
       session_options(),
       session(env, model->GetModelPath().c_str(), session_options) {
