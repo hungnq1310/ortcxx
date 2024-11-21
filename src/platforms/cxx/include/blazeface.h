@@ -40,50 +40,32 @@
 	
 // };
 
-#include "featurenet.h"
-#include <iostream>
-#include <cassert>
-#include <cstring>
+#ifndef BLAZEFACE_H
+#define BLAZEFACE_H
 
-FeatureNet::FeatureNet(const std::string& model_path)
-    : Pipeline(model_path) {
-    // Additional initialization if needed
-}
+#include "pipeline.h"
+#include <opencv2/opencv.hpp>
+#include <onnxruntime/core/session/onnxruntime_cxx_api.h>
+#include <vector>
+#include <string>
 
-FeatureNet::~FeatureNet() {
-    if (m_modelBytes != nullptr) {
-        free(m_modelBytes);
-        m_modelBytes = nullptr;
-    }
-}
+class BlazeFace : public Pipeline {
+public:
+    BlazeFace(Model model);
+    ~BlazeFace();
+    Ort::Value preprocess(Ort::Value input) override;
+    Ort::Value postprocess(Ort::Value input) override;
+    Ort::Value inference(Ort::Value input) override;
 
-void FeatureNet::initModel(const char* tfliteModel, long modelSize) {
-    // Copy to model bytes as the caller might release this memory while we need it (EXC_BAD_ACCESS error on ios)
-    m_modelBytes = (char*)malloc(sizeof(char) * modelSize);
-    memcpy(m_modelBytes, tfliteModel, sizeof(char) * modelSize);
-    m_model = tflite::FlatBufferModel::BuildFromBuffer(m_modelBytes, modelSize);
-    assert(m_model != nullptr);
+private:
+    Ort::Value createOrtValueFromMat(const cv::Mat& mat);
+    cv::Mat createMatFromOrtValue(const Ort::Value& ort_value);
+    std::vector<float> postprocessDetections(const cv::Mat& detections);
+    Ort::Value createOrtValueFromVector(const std::vector<float>& vec);
+    void generateAnchors(float anchors[][2]);
 
-    // Build the interpreter
-    tflite::ops::builtin::BuiltinOpResolver resolver;
-    tflite::InterpreterBuilder builder(*m_model, resolver);
-    builder(&m_interpreter);
-    assert(m_interpreter != nullptr);
+    // Additional member variables if needed
+    char* m_modelBytes = nullptr;
+};
 
-    if (m_interpreter->AllocateTensors() != kTfLiteOk) {
-        std::cerr << "Failed to allocate tensors" << std::endl;
-        return;
-    }
-}
-
-std::vector<float> FeatureNet::preprocess(const std::vector<float>& input) {
-    // Default implementation: return the input as is
-    std::cout << "FeatureNet Preprocessing..." << std::endl;
-    return input;
-}
-
-std::vector<float> FeatureNet::postprocess(const std::vector<float>& input) {
-    // Default implementation: return the input as is
-    std::cout << "FeatureNet Postprocessing..." << std::endl;
-    return input;
-}
+#endif // BLAZEFACE_H
