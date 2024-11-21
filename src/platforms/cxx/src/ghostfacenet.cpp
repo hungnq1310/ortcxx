@@ -1,71 +1,111 @@
 #include "ghostfacenet.h"
-#include "face.h" // Assuming face.h contains the align_5_points function
-#include "crop_image.h" // Assuming crop_image.h contains the crop_image function
+#include <iostream>
+#include <model.h>
+#include "pipeline.h"
+#include <opencv2/opencv.hpp>
+#include <onnxruntime/core/session/onnxruntime_cxx_api.h>
 
-GhostFaceNet::GhostFaceNet(const std::string& model_path)
-    : env(ORT_LOGGING_LEVEL_WARNING, "GhostFaceNet"),
-      session_options(),
-      session(load_model(model_path)) {
-    input_name = session.GetInputName(0, env);
-    output_name = session.GetOutputName(0, env);
-    auto input_shape = session.GetInputTypeInfo(0).GetTensorTypeAndShapeInfo().GetShape();
-    model_input_size = cv::Size(input_shape[2], input_shape[1]);
+GhostFaceNet::GhostFaceNet(Model model)
+    : Pipeline(model) {
+    // Additional initialization if needed
 }
 
-Ort::Session GhostFaceNet::load_model(const std::string& path) {
-    session_options.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL);
-    return Ort::Session(env, path.c_str(), session_options);
+Ort::Value GhostFaceNet::preprocess(Ort::Value input) {
+    // Implement preprocessing logic here
+    std::cout << "GhostFaceNet Preprocessing..." << std::endl;
+    cv::Mat image = createMatFromOrtValue(input);
+
+    // Rotate the image
+    double angle = 15.0; // Example rotation angle
+    cv::cuda::GpuMat gpu_image;
+    gpu_image.upload(image);
+    cv::cuda::GpuMat rotated_image = improc::rotateImage(gpu_image, angle, image.size(), "bilinear");
+
+    // Download the rotated image back to CPU
+    cv::Mat rotated_image_cpu;
+    rotated_image.download(rotated_image_cpu);
+
+    // Resize the image
+    cv::Mat resized_image;
+    cv::resize(rotated_image_cpu, resized_image, model_input_size);
+    resized_image.convertTo(resized_image, CV_32F, 1.0 / 255);
+    resized_image = (resized_image - 0.5) * 2.0;
+
+    // Convert to Ort::Value
+    Ort::Value preprocessed_image = createOrtValueFromMat(resized_image);
+    return preprocessed_image;
 }
 
-std::vector<cv::Mat> GhostFaceNet::preprocess(const cv::Mat& image, const std::vector<cv::Rect>& xyxys, const std::vector<std::vector<float>>& kpts) {
-    std::vector<cv::Mat> crops;
-    for (size_t i = 0; i < xyxys.size(); ++i) {
-        const auto& box = xyxys[i];
-        const auto& kpt = kpts[i];
-        cv::Mat crop = crop_image(image, box);
-        std::vector<float> aligned_kpt = kpt;
-        for (size_t j = 0; j < kpt.size(); j += 3) {
-            aligned_kpt[j] -= box.x;
-            aligned_kpt[j + 1] -= box.y;
-        }
-        crop = face::align_5_points(crop, aligned_kpt);
-        cv::resize(crop, crop, model_input_size);
-        crop.convertTo(crop, CV_32F, 1.0 / 255);
-        crop = (crop - 0.5) * 2.0;
-        crops.push_back(crop);
-    }
-    return crops;
+Ort::Value GhostFaceNet::postprocess(Ort::Value input) {
+    // Implement postprocessing logic here
+    std::cout << "GhostFaceNet Postprocessing..." << std::endl;
+    // Example: return the input as is
+    return input;
 }
 
-std::vector<float> GhostFaceNet::inference(const cv::Mat& image, const std::vector<cv::Rect>& xyxys, const std::vector<std::vector<float>>& kpts, bool norm) {
-    std::vector<cv::Mat> crops = preprocess(image, xyxys, kpts);
-    std::vector<float> input_tensor_values;
-    for (const auto& crop : crops) {
-        input_tensor_values.insert(input_tensor_values.end(), crop.begin<float>(), crop.end<float>());
-    }
+Ort::Value GhostFaceNet::inference(Ort::Value input) {
+    // Run the model with the preprocessed input
+    Ort::Value preprocessed_input = preprocess(input);
+    Ort::Value output = model->run(preprocessed_input);
+    // Postprocess the output
+    Ort::Value postprocessed_output = postprocess(output);
+    return postprocessed_output;
+}
 
-    std::vector<int64_t> input_shape = {static_cast<int64_t>(crops.size()), model_input_size.height, model_input_size.width, 3};
-    Ort::Value input_tensor = Ort::Value::CreateTensor<float>(env, input_tensor_values.data(), input_tensor_values.size(), input_shape.data(), input_shape.size());
-
-    auto output_tensors = session.Run(Ort::RunOptions{nullptr}, &input_name, &input_tensor, 1, &output_name, 1);
-    std::vector<float> result = output_tensors.front().GetTensorMutableData<float>();
-
-    if (norm) {
-        for (size_t i = 0; i < result.size(); i += 512) { // Assuming embedding size is 512
-            float norm_factor = 0.0;
-            for (size_t j = 0; j < 512; ++j) {
-                norm_factor += result[i + j] * result[i + j];
-            }
-            norm_factor = std::sqrt(norm_factor);
-            for (size_t j = 0; j < 512; ++j) {
-                result[i + j] /= norm_factor;
-            }
-        }
+Ort::Value GhostFaceNet::createOrtValueFromMat(const cv::Mat& mat) {
+    // Ensure the input mat is of type CV_32F (float)
+    cv::Mat mat_float;
+    if (mat.type() != CV_32F) {
+        mat.convertTo(mat_float, CV_32F);
+    } else {
+        mat_float = mat;
     }
 
-    return result;
+    // Define the dimensions of the tensor
+    std::vector<int64_t> dims = {1, mat_float.rows, mat_float.cols, mat_float.channels()};
+
+    // Calculate the size of the tensor
+    size_t tensor_size = mat_float.total() * mat_float.elemSize();
+
+    // Create the tensor from the image data
+    Ort::MemoryInfo memory_info = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
+    Ort::Value tensor = Ort::Value::CreateTensor<float>(memory_info, mat_float.ptr<float>(), tensor_size, dims.data(), dims.size());
+
+    return tensor;
 }
 
-void GhostFaceNet::postprocess(const cv::Mat& image) {
-    throw std::runtime_error("Not implemented");
+cv::Mat GhostFaceNet::createMatFromOrtValue(const Ort::Value& ort_value) {
+    // Ensure the Ort::Value is a tensor
+    if (!ort_value.IsTensor()) {
+        throw std::invalid_argument("Ort::Value is not a tensor");
+    }
+
+    // Get the tensor information
+    Ort::TensorTypeAndShapeInfo tensor_info = ort_value.GetTensorTypeAndShapeInfo();
+    std::vector<int64_t> dims = tensor_info.GetShape();
+    size_t total_elements = tensor_info.GetElementCount();
+
+    // Ensure the tensor has 4 dimensions (batch, height, width, channels)
+    if (dims.size() != 4) {
+        throw std::invalid_argument("Tensor does not have 4 dimensions");
+    }
+
+    // Extract dimensions
+    int batch_size = dims[0];
+    int height = dims[1];
+    int width = dims[2];
+    int channels = dims[3];
+
+    // Ensure batch size is 1
+    if (batch_size != 1) {
+        throw std::invalid_argument("Batch size is not 1");
+    }
+
+    // Get the data pointer
+    float* tensor_data = ort_value.GetTensorMutableData<float>();
+
+    // Create a cv::Mat from the tensor data
+    cv::Mat mat(height, width, CV_32FC(channels), tensor_data);
+
+    return mat;
 }
