@@ -1,98 +1,154 @@
+// #include "metricnet.h"
+
+// TFLiteMetricNet::TFLiteMetricNet() {
+// }
+
+
+// TFLiteMetricNet::~TFLiteMetricNet() {
+//     if (m_modelBytes != nullptr) {
+//         free(m_modelBytes);
+//         m_modelBytes = nullptr;
+//     }
+// }
+
+
+// void TFLiteMetricNet::initModel(const char *tfliteModel, long modelSize) {
+
+//     // Copy to model bytes as the caller might release this memory while we need it (EXC_BAD_ACCESS error on ios)
+//     m_modelBytes = (char *) malloc(sizeof(char) * modelSize);
+//     memcpy(m_modelBytes, tfliteModel, sizeof(char) * modelSize);
+//     m_model = tflite::FlatBufferModel::BuildFromBuffer(m_modelBytes, modelSize);
+//     assert(m_model != nullptr);
+
+//     // Build the interpreter
+//     tflite::ops::builtin::BuiltinOpResolver resolver;
+//     tflite::InterpreterBuilder builder(*m_model, resolver);
+//     builder(&m_interpreter);
+//     assert(m_interpreter != nullptr);
+
+//     // Allocate tensor buffers.
+//     assert(m_interpreter->AllocateTensors() == kTfLiteOk);
+//     assert(m_interpreter->Invoke() == kTfLiteOk);
+// }
+
+// void TFLiteMetricNet::initModel(const char *tfliteModel) {
+
+//     m_model = tflite::FlatBufferModel::BuildFromFile(tfliteModel);
+//     assert(m_model != nullptr);
+
+//     // Build the interpreter
+//     tflite::ops::builtin::BuiltinOpResolver resolver;
+//     tflite::InterpreterBuilder builder(*m_model, resolver);
+//     builder(&m_interpreter);
+//     assert(m_interpreter != nullptr);
+
+//     // Allocate tensor buffers.
+//     assert(m_interpreter->AllocateTensors() == kTfLiteOk);
+//     assert(m_interpreter->Invoke() == kTfLiteOk);
+// }
+
+// void TFLiteMetricNet::initModel(const char *tfliteModel, int numThreads) {
+
+//     m_model = tflite::FlatBufferModel::BuildFromFile(tfliteModel);
+//     assert(m_model != nullptr);
+
+//     // Build the interpreter
+//     tflite::ops::builtin::BuiltinOpResolver resolver;
+//     tflite::InterpreterBuilder builder(*m_model, resolver);
+//     builder(&m_interpreter);
+//     assert(m_interpreter != nullptr);
+
+//     // Allocate tensor buffers.
+//     assert(m_interpreter->AllocateTensors() == kTfLiteOk);
+//     assert(m_interpreter->Invoke() == kTfLiteOk);
+//     // interpreter->SetAllowFp16PrecisionForFp32(true);
+//     m_interpreter->SetNumThreads(numThreads);
+// }
+
+// void TFLiteMetricNet::predict(float feat1[], float feat2[], PredictResultMetricNet *res) {
+//     // get input & output layer of tflite model
+//     float *inputLayer1 = m_interpreter->typed_input_tensor<float>(0);
+// //    float *inputLayer2 = m_interpreter->typed_input_tensor<float>(1);
+//     float *outputLayer = m_interpreter->typed_output_tensor<float>(0);
+
+//     // merge input
+//     float feat[BATCH_SIZE * EMBEDDING_SIZE + EMBEDDING_SIZE];
+//     for (int i = 0; i < EMBEDDING_SIZE; i++){
+//         feat[i] = feat1[i];
+//     }
+//     for (int i = 0; i < BATCH_SIZE * EMBEDDING_SIZE; i++) {
+//         feat[i + EMBEDDING_SIZE] = feat2[i];
+//     }
+
+//     // copy the input image to input layer
+//     memcpy(inputLayer1, feat, (BATCH_SIZE * EMBEDDING_SIZE + EMBEDDING_SIZE) * sizeof(float));
+// //    memcpy(inputLayer1, feat1, EMBEDDING_SIZE * sizeof(float));
+// //    memcpy(inputLayer2, feat2, BATCH_SIZE * EMBEDDING_SIZE * sizeof(float));
+
+//     // compute model instance
+//     if (m_interpreter->Invoke() != kTfLiteOk) {
+//         printf("Error invoking detection model");
+//     } else{
+//         for (int i = 0; i < BATCH_SIZE; i++){
+//             res[i].results[0] = outputLayer[i];
+//         }
+
+//     }
+
+// }
+
 #include "metricnet.h"
+#include <iostream>
 
-TFLiteMetricNet::TFLiteMetricNet() {
+MetricNet::MetricNet(const std::string& model_path)
+    : Pipeline(model_path) {
+    initModel(model_path);
 }
 
+void MetricNet::initModel(const std::string& model_path) {
+    m_model = tflite::FlatBufferModel::BuildFromFile(model_path.c_str());
+    if (!m_model) {
+        std::cerr << "Failed to load model: " << model_path << std::endl;
+        return;
+    }
 
-TFLiteMetricNet::~TFLiteMetricNet() {
-    if (m_modelBytes != nullptr) {
-        free(m_modelBytes);
-        m_modelBytes = nullptr;
+    tflite::ops::builtin::BuiltinOpResolver resolver;
+    tflite::InterpreterBuilder(*m_model, resolver)(&m_interpreter);
+    if (!m_interpreter) {
+        std::cerr << "Failed to create interpreter" << std::endl;
+        return;
+    }
+
+    if (m_interpreter->AllocateTensors() != kTfLiteOk) {
+        std::cerr << "Failed to allocate tensors" << std::endl;
+        return;
     }
 }
 
-
-void TFLiteMetricNet::initModel(const char *tfliteModel, long modelSize) {
-
-    // Copy to model bytes as the caller might release this memory while we need it (EXC_BAD_ACCESS error on ios)
-    m_modelBytes = (char *) malloc(sizeof(char) * modelSize);
-    memcpy(m_modelBytes, tfliteModel, sizeof(char) * modelSize);
-    m_model = tflite::FlatBufferModel::BuildFromBuffer(m_modelBytes, modelSize);
-    assert(m_model != nullptr);
-
-    // Build the interpreter
-    tflite::ops::builtin::BuiltinOpResolver resolver;
-    tflite::InterpreterBuilder builder(*m_model, resolver);
-    builder(&m_interpreter);
-    assert(m_interpreter != nullptr);
-
-    // Allocate tensor buffers.
-    assert(m_interpreter->AllocateTensors() == kTfLiteOk);
-    assert(m_interpreter->Invoke() == kTfLiteOk);
+std::vector<float> MetricNet::preprocess(const std::vector<float>& input) {
+    // Default implementation: return the input as is
+    std::cout << "MetricNet Preprocessing..." << std::endl;
+    return input;
 }
 
-void TFLiteMetricNet::initModel(const char *tfliteModel) {
-
-    m_model = tflite::FlatBufferModel::BuildFromFile(tfliteModel);
-    assert(m_model != nullptr);
-
-    // Build the interpreter
-    tflite::ops::builtin::BuiltinOpResolver resolver;
-    tflite::InterpreterBuilder builder(*m_model, resolver);
-    builder(&m_interpreter);
-    assert(m_interpreter != nullptr);
-
-    // Allocate tensor buffers.
-    assert(m_interpreter->AllocateTensors() == kTfLiteOk);
-    assert(m_interpreter->Invoke() == kTfLiteOk);
+std::vector<float> MetricNet::postprocess(const std::vector<float>& input) {
+    // Default implementation: return the input as is
+    std::cout << "MetricNet Postprocessing..." << std::endl;
+    return input;
 }
 
-void TFLiteMetricNet::initModel(const char *tfliteModel, int numThreads) {
+void MetricNet::predict(float feat1[EMBEDDING_SIZE], float feat2[BATCH_SIZE * EMBEDDING_SIZE], PredictResultMetricNet *res) {
+    float* input1 = m_interpreter->typed_input_tensor<float>(0);
+    float* input2 = m_interpreter->typed_input_tensor<float>(1);
 
-    m_model = tflite::FlatBufferModel::BuildFromFile(tfliteModel);
-    assert(m_model != nullptr);
+    std::copy(feat1, feat1 + EMBEDDING_SIZE, input1);
+    std::copy(feat2, feat2 + BATCH_SIZE * EMBEDDING_SIZE, input2);
 
-    // Build the interpreter
-    tflite::ops::builtin::BuiltinOpResolver resolver;
-    tflite::InterpreterBuilder builder(*m_model, resolver);
-    builder(&m_interpreter);
-    assert(m_interpreter != nullptr);
-
-    // Allocate tensor buffers.
-    assert(m_interpreter->AllocateTensors() == kTfLiteOk);
-    assert(m_interpreter->Invoke() == kTfLiteOk);
-    // interpreter->SetAllowFp16PrecisionForFp32(true);
-    m_interpreter->SetNumThreads(numThreads);
-}
-
-void TFLiteMetricNet::predict(float feat1[], float feat2[], PredictResultMetricNet *res) {
-    // get input & output layer of tflite model
-    float *inputLayer1 = m_interpreter->typed_input_tensor<float>(0);
-//    float *inputLayer2 = m_interpreter->typed_input_tensor<float>(1);
-    float *outputLayer = m_interpreter->typed_output_tensor<float>(0);
-
-    // merge input
-    float feat[BATCH_SIZE * EMBEDDING_SIZE + EMBEDDING_SIZE];
-    for (int i = 0; i < EMBEDDING_SIZE; i++){
-        feat[i] = feat1[i];
-    }
-    for (int i = 0; i < BATCH_SIZE * EMBEDDING_SIZE; i++) {
-        feat[i + EMBEDDING_SIZE] = feat2[i];
-    }
-
-    // copy the input image to input layer
-    memcpy(inputLayer1, feat, (BATCH_SIZE * EMBEDDING_SIZE + EMBEDDING_SIZE) * sizeof(float));
-//    memcpy(inputLayer1, feat1, EMBEDDING_SIZE * sizeof(float));
-//    memcpy(inputLayer2, feat2, BATCH_SIZE * EMBEDDING_SIZE * sizeof(float));
-
-    // compute model instance
     if (m_interpreter->Invoke() != kTfLiteOk) {
-        printf("Error invoking detection model");
-    } else{
-        for (int i = 0; i < BATCH_SIZE; i++){
-            res[i].results[0] = outputLayer[i];
-        }
-
+        std::cerr << "Failed to invoke tflite interpreter" << std::endl;
+        return;
     }
 
+    float* output = m_interpreter->typed_output_tensor<float>(0);
+    res->results[0] = output[0];
 }
