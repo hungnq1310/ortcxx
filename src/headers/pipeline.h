@@ -12,6 +12,7 @@ class Pipeline {
 
         virtual Ort::Value preprocess(Ort::Value input);
         virtual Ort::Value postprocess(Ort::Value input);
+        virtual Ort::Value inference(Ort::Value input);
 
     protected:
         Ort::Env env;
