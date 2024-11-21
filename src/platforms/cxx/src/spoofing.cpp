@@ -31,7 +31,7 @@ Ort::Value Spoofing::postprocess(Ort::Value input) {
 Ort::Value Spoofing::inference(Ort::Value input) {
     // Run the model with the preprocessed input
     Ort::Value preprocessed_input = preprocess(input);
-    Ort::Value output = model->run(inputTensors);
+    Ort::Value output = model->run(preprocessed_input);
     // Postprocess the output
     Ort::Value postprocessed_output = postprocess(output);
     return postprocessed_output;
