@@ -2,6 +2,8 @@
 #include <iostream>
 #include <stdexcept>
 
+using namespace ortcxx::model;
+
 Pipeline::Pipeline(Model model)
     : env(ORT_LOGGING_LEVEL_WARNING, "Pipeline"),
       session_options(),

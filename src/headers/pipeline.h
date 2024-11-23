@@ -5,6 +5,8 @@
 #include <model.h>
 #include <onnxruntime/core/session/onnxruntime_cxx_api.h>
 
+using namespace ortcxx::model;
+
 class Pipeline {
     public:
         Pipeline(Model model);
