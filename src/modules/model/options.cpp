@@ -9,6 +9,15 @@ ModelOptions::ModelOptions(optional<map<string, any>> options)
   this->_sessOptions = SessionOptions();
 };
 
+bool ModelOptions::appendVINO(optional<map<string, any>> options)
+{
+  std::unordered_map<std::string, std::string> openVINOOptions;
+  for (auto& pair : options.value()) {
+    openVINOOptions[pair.first] = pair.second;
+  }
+  this->_sessOptions.AppendExecutionProvider("OpenVINO", openVINOOptions);
+  return true;
+};
 
 void checkStatusCUDA(OrtStatus* status) {
   if (status != nullptr) {
