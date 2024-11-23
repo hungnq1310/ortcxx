@@ -19,6 +19,19 @@ bool ModelOptions::appendVINO(optional<map<string, any>> options)
   return true;
 };
 
+bool ModelOptions::appendNNAPI(optional<map<string, any>> options)
+{
+  for (auto& pair : options.value()) {
+    if (pair.first == "nnapi_flags" && pair.second == 0)
+    {
+      this->_sessOptions.AppendExecutionProvider_Nnapi(pair.second);
+      return true;
+    }
+  }
+  return false;
+};
+
+
 void checkStatusCUDA(OrtStatus* status) {
   if (status != nullptr) {
     cout << "Error: " << Ort::GetApi().GetErrorMessage(status) << endl;
