@@ -31,6 +31,11 @@ bool ModelOptions::appendNNAPI(optional<map<string, any>> options)
   return false;
 };
 
+bool ModelOptions::appendCPU(optional<map<string, any>> options)
+{
+  return true;
+};
+
 
 void checkStatusCUDA(OrtStatus* status) {
   if (status != nullptr) {
