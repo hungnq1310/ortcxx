@@ -1,4 +1,5 @@
 #include "model.h"
+#include <onnxruntime_cxx_api.h>
 
 using namespace std;
 using namespace Ort;
@@ -36,6 +37,18 @@ bool ModelOptions::appendCPU(optional<map<string, any>> options)
   return true;
 };
 
+bool ModelOptions::appendCoreML(optional<map<string, any>> options)
+{
+  bool flag = false;
+  for (auto& pair : options.value()) {
+    if (pair.first == "coreml_flags" && pair.second == 0)
+    {
+      this->_sessOptions.AppendExecutionProvider_CoreML(pair.second);
+      flag = true;
+    }
+  }
+  return flag;
+};
 
 void checkStatusCUDA(OrtStatus* status) {
   if (status != nullptr) {
