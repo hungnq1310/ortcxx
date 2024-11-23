@@ -26,6 +26,7 @@ protected:
   bool appendCUDA(optional<map<string, any>> options);
   bool appendVINO(optional<map<string, any>> options);
   bool appendNNAPI(optional<map<string, any>> options);
+  bool appendCoreML(optional<map<string, any>> options);
 
 public:
   ModelOptions(optional<map<string, any>> options);
