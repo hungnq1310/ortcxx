@@ -5,9 +5,16 @@ using namespace std;
 using namespace Ort;
 using namespace ortcxx::model;
 
+ModelOptions::ModelOptions(optional<map<string, any>> options, optional<map<string, string>> providers)
+{
+  this->_sessOptions = SessionOptions();
+  this->getSessionOptions(options, providers);
+};
+
 ModelOptions::ModelOptions(optional<map<string, any>> options)
 {
   this->_sessOptions = SessionOptions();
+  this->getSessionOptions(options, nullopt);
 };
 
 bool ModelOptions::appendVINO(optional<map<string, any>> options)
@@ -79,3 +86,73 @@ bool ModelOptions::appendCUDA(optional<map<string, any>> options)
   return true;
 };
 
+
+SessionOptions ModelOptions::getSessionOptions(
+  const optional<map<string, any>> options,
+  const optional<map<string, optional<map<string, string>>>> providers
+) {
+
+  if (options.has_value()) {
+    auto _options = options.value();
+    auto _begin = _options.begin();
+    auto _end = _options.end();
+    if (_options.find("parallel") != _end)
+      try {
+        this->_sessOptions.SetExecutionMode(any_cast<bool>(_options.at("parallel")) ? ORT_PARALLEL : ORT_SEQUENTIAL);
+      } catch (bad_any_cast& e) {
+        cout << "Invalid parrallel. Use default value." << endl;
+      }
+    if (_options.find("inter_ops_threads") != _end)
+      try {
+        int threads = any_cast<int>(_options.at("inter_ops_threads"));
+        if (threads > 0)
+          this->_sessOptions.SetInterOpNumThreads(threads);
+      } catch (bad_any_cast& e) {
+        cout << "Invalid inter_ops_thread. Use default value." << endl;
+      }
+    if (_options.find("intra_ops_threads") != _end)
+      try {
+        int threads = any_cast<int>(_options.at("intra_ops_threads"));
+        if (threads > 0)
+          this->_sessOptions..SetIntraOpNumThreads(threads);
+      } catch(bad_any_cast& e) {
+        cout << "Invalid intra_ops_thread. Use default value." << endl;
+      }
+    if (_options.find("graph_optimization_level") != _end)
+      try {
+        int graph = any_cast<int>(_options.at("graph_optimization_level"));
+        switch (graph) {
+          case 0: this->_sessOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_DISABLE_ALL); break;
+          case 1: this->_sessOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_BASIC); break;
+          case 2: this->_sessOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED); break;
+          case 3: this->_sessOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL); break;
+          default: break;
+        }
+      } catch (bad_any_cast& e) {
+        cout << "Invalud graph_optimization_level. Use default value." << endl;
+      }
+  }
+  if (providers.has_value()) {
+    auto _providers = providers.value();
+    auto providerName = _providers.begin()->first;
+    auto _begin = _providers.begin();
+    auto _end = _providers.end();
+    
+    if (_providers.find(providerName) != _end) {
+      auto providerOptions = _providers.at(providerName);
+      if (providerName == "CUDAExecutionProvider") {
+        this->_modelOptions->appendCUDA(providerOptions);
+      } 
+      else if (providerName == "OpenVINOExecutionProvider") {
+        this->_modelOptions->appendVINO(providerOptions);
+      }
+      else if (providerName == "NnapiExecutionProvider") {
+        this->_modelOptions->appendNNAPI(providerOptions);
+      }
+      else if (providerName == "CoreMLExecutionProvider") {
+        this->_modelOptions->appendCoreML(providerOptions);
+      }
+    }
+  }
+  return this->_sessOptions;
+}
