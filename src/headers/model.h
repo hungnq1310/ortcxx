@@ -10,6 +10,7 @@
 #include <optional>
 #include <iostream>
 #include <onnxruntime_cxx_api.h>
+#include <model.h>
 
 using namespace std;
 using namespace Ort;
@@ -27,9 +28,9 @@ protected:
   bool appendVINO(optional<map<string, any>> options);
   bool appendNNAPI(optional<map<string, any>> options);
   bool appendCoreML(optional<map<string, any>> options);
-
+  
 public:
   ModelOptions(optional<map<string, any>> options);
+  ModelOptions(optional<map<string, any>> options, optional<map<string, any>> providers);
+  SessionOptions getSessionOptions(optional<map<string, any>> options, optional<map<string, string>> providers);
 };
-};
-#endif
