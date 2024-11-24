@@ -8,15 +8,17 @@ using namespace ortcxx::model;
 
 
 Model::Model(
-    string model,
-    const optional<map<string, any>> options,
-    ModelOptions model_options,
+    std::string model,
+    const std::optional<std::map<std::string, std::any>> options,
     const optional<map<string, optional<map<string, string>>>> providers,
     bool isEncrypted
 ) {
+    // Initialize the environment
     this->_env = make_shared<Ort::Env>(ORT_LOGGING_LEVEL_WARNING, "test");
-    this->_sessionOptions = model_options.getSessionOptions(options, providers);
-    this->_device = "CPU";
+
+    // Model options
+    ModelOptions model_options(options);
+    this->_sessionOptions = model_options.getSessionOptions(options);
   
     ifstream inputFile(model, ios::binary);
     if (!inputFile.is_open()) {
@@ -45,17 +47,20 @@ Model::Model(
 
 
 Model::Model(
-    string model,
-    shared_ptr<Ort::Env> env,
-    shared_ptr<Ort::Allocator> allocator,
-    ModelOptions model_options,
-    const optional<map<string, optional<map<string, string>>>> providers,
+    std::string model,
+    std::shared_ptr<Ort::Env> env,
+    std::shared_ptr<Ort::Allocator> allocator,
+    const std::optional<std::map<std::string, std::any>> options,
+    const optional<map<string, any>> providers,
     bool isEncrypted
 ) {
+    // Initialize the environment
     this->_env = env;
     this->_allocator = allocator;
-    this->_device = "CPU";
-    this->_sessionOptions = model_options.getSessionOptions(options, providers);
+
+    // Model options
+    ModelOptions model_options(options);
+    this->_sessionOptions = model_options.getSessionOptions(options);
 
   
     ifstream inputFile(model, ios::binary);

@@ -64,7 +64,7 @@ class Model {
 
       Model(
           std::string model,
-          std::unique_ptr<ModelOptions> _modelOptions,
+          const std::optional<std::map<std::string, std::any>> options,
           const optional<map<string, optional<map<string, string>>>> providers,
           bool isEncrypted
       );
@@ -86,7 +86,7 @@ class Model {
           std::string model,
           std::shared_ptr<Ort::Env> env,
           std::shared_ptr<Ort::Allocator> allocator,
-          std::unique_ptr<ModelOptions> _modelOptions,
+          const std::optional<std::map<std::string, std::any>> options,
           const optional<map<string, any>> providers,
           bool isEncrypted
       );
