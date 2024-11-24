@@ -5,17 +5,12 @@ using namespace std;
 using namespace Ort;
 using namespace ortcxx::model;
 
-ModelOptions::ModelOptions(optional<map<string, any>> options, optional<map<string, string>> providers)
-{
-  this->_sessOptions = SessionOptions();
-  this->getSessionOptions(options, providers);
-};
-
 ModelOptions::ModelOptions(optional<map<string, any>> options)
 {
   this->_sessOptions = SessionOptions();
-  this->getSessionOptions(options, nullopt);
+  this->getSessionOptions(options);
 };
+
 
 bool ModelOptions::appendVINO(optional<map<string, any>> options)
 {
@@ -88,8 +83,7 @@ bool ModelOptions::appendCUDA(optional<map<string, any>> options)
 
 
 SessionOptions ModelOptions::getSessionOptions(
-  const optional<map<string, any>> options,
-  const optional<map<string, optional<map<string, string>>>> providers
+  const optional<map<string, any>> options
 ) {
 
   if (options.has_value()) {
