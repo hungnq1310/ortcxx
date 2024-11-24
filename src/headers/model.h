@@ -31,8 +31,7 @@ protected:
   
 public:
   ModelOptions(optional<map<string, any>> options);
-  ModelOptions(optional<map<string, any>> options, optional<map<string, any>> providers);
-  SessionOptions getSessionOptions(optional<map<string, any>> options, optional<map<string, string>> providers);
+  SessionOptions getSessionOptions(optional<map<string, any>> options);
 };
 
 class Model {
