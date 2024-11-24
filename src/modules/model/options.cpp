@@ -8,7 +8,6 @@ using namespace ortcxx::model;
 ModelOptions::ModelOptions(optional<map<string, any>> options)
 {
   this->_sessOptions = SessionOptions();
-  this->getSessionOptions(options);
 };
 
 
@@ -108,7 +107,7 @@ SessionOptions ModelOptions::getSessionOptions(
       try {
         int threads = any_cast<int>(_options.at("intra_ops_threads"));
         if (threads > 0)
-          this->_sessOptions..SetIntraOpNumThreads(threads);
+          this->_sessOptions.SetIntraOpNumThreads(threads);
       } catch(bad_any_cast& e) {
         cout << "Invalid intra_ops_thread. Use default value." << endl;
       }
@@ -126,27 +125,23 @@ SessionOptions ModelOptions::getSessionOptions(
         cout << "Invalud graph_optimization_level. Use default value." << endl;
       }
   }
-  if (providers.has_value()) {
-    auto _providers = providers.value();
-    auto providerName = _providers.begin()->first;
-    auto _begin = _providers.begin();
-    auto _end = _providers.end();
-    
-    if (_providers.find(providerName) != _end) {
-      auto providerOptions = _providers.at(providerName);
-      if (providerName == "CUDAExecutionProvider") {
-        this->_modelOptions->appendCUDA(providerOptions);
-      } 
-      else if (providerName == "OpenVINOExecutionProvider") {
-        this->_modelOptions->appendVINO(providerOptions);
-      }
-      else if (providerName == "NnapiExecutionProvider") {
-        this->_modelOptions->appendNNAPI(providerOptions);
-      }
-      else if (providerName == "CoreMLExecutionProvider") {
-        this->_modelOptions->appendCoreML(providerOptions);
-      }
-    }
+
+  auto providerName =  AVAILABLE_PROVIDERS.front();
+  auto _begin = AVAILABLE_PROVIDERS.begin();
+  auto _end = AVAILABLE_PROVIDERS.end();
+
+  if (providerName == "CUDAExecutionProvider") {
+    this->appendCUDA(options);
+  } 
+  else if (providerName == "OpenVINOExecutionProvider") {
+    this->appendVINO(options);
   }
+  else if (providerName == "NnapiExecutionProvider") {
+    this->appendNNAPI(options);
+  }
+  else if (providerName == "CoreMLExecutionProvider") {
+    this->appendCoreML(options);
+  }
+  
   return this->_sessOptions;
 }
