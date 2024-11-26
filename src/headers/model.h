@@ -56,19 +56,21 @@ class Model {
           return this->isRunned;
       };
 
-      Model(
-          const std::string& model, 
-          std::shared_ptr<Ort::Env> env, 
-          std::shared_ptr<Ort::Allocator> allocator, 
-          std::unique_ptr<ModelOptions> _modelOptions,
-          const std::optional<std::map<std::string, std::optional<std::map<std::string, std::string>>>> providers,
-          bool isEncrypted
-      );
+      static std::shared_ptr<Model> create(
+        const std::string& model, 
+        std::shared_ptr<Ort::Env> env, 
+        std::shared_ptr<Ort::Allocator> allocator, 
+        const std::optional<std::map<std::string, std::any>> options,
+        const optional<vector<string>> providers,
+        bool isEncrypted
+      ) {
+        return std::shared_ptr<Model>(new Model(model, env, allocator, options, providers, isEncrypted));
+      }
 
       Model(
           std::string model,
           const std::optional<std::map<std::string, std::any>> options,
-          const optional<map<string, optional<map<string, string>>>> providers,
+          const optional<vector<string>> providers,
           bool isEncrypted
       );
 
@@ -91,7 +93,7 @@ class Model {
           std::shared_ptr<Ort::Env> env,
           std::shared_ptr<Ort::Allocator> allocator,
           const std::optional<std::map<std::string, std::any>> options,
-          const optional<map<string, any>> providers,
+          const optional<vector<string>> providers,
           bool isEncrypted
       );
   };
