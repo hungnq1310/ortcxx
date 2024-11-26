@@ -10,7 +10,7 @@
 #include <optional>
 #include <iostream>
 #include <onnxruntime_cxx_api.h>
-#include <model.h>
+#include <ortcxx/model.h>
 
 using namespace std;
 using namespace Ort;
@@ -24,15 +24,15 @@ class ModelOptions
 protected:
   SessionOptions _sessOptions;
   bool appendCPU(optional<map<string, any>> options,
-                 std::unique_ptr<Ort::SessionOptions> so);
+                 Ort::SessionOptions* so);
   bool appendCUDA(optional<map<string, any>> options,
-                  std::unique_ptr<Ort::SessionOptions> so);
+                  Ort::SessionOptions* so);
   bool appendVINO(optional<map<string, any>> options,
-                  std::unique_ptr<Ort::SessionOptions> so); 
+                  Ort::SessionOptions* so); 
   bool appendNNAPI(optional<map<string, any>> options,
-                  std::unique_ptr<Ort::SessionOptions> so);
+                  Ort::SessionOptions* so);
   bool appendCoreML(optional<map<string, any>> options,
-                  std::unique_ptr<Ort::SessionOptions> so);
+                  Ort::SessionOptions* so);
   
 public:
   ModelOptions();

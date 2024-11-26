@@ -1,7 +1,7 @@
 #include "model.h"
 #include <onnxruntime_cxx_api.h>
 
-#include <CL/cl2.h>
+#include <CL/cl.h>
 
 using namespace std;
 using namespace Ort;
@@ -9,7 +9,7 @@ using namespace ortcxx::model;
 
 bool ModelOptions::appendVINO(
   optional<map<string, any>> options,
-  std::unique_ptr<Ort::SessionOptions> so
+  Ort::SessionOptions* so
 )
 {
   OrtOpenVINOProviderOptions optionsVINO;
@@ -29,7 +29,7 @@ bool ModelOptions::appendVINO(
 
 bool ModelOptions::appendNNAPI(
   optional<map<string, any>> options,
-  std::unique_ptr<Ort::SessionOptions> so
+  Ort::SessionOptions* so
 ) {
   // fine the flag in options
   bool flag = false;  
@@ -55,13 +55,15 @@ bool ModelOptions::appendNNAPI(
 
 bool ModelOptions::appendCPU(
   optional<map<string, any>> options,
-  std::unique_ptr<Ort::SessionOptions> so
+  Ort::SessionOptions* so
 ) {
   return true;
 };
 
-bool ModelOptions::appendCoreML(optional<map<string, any>> options, std::unique_ptr<Ort::SessionOptions> so)
-{
+bool ModelOptions::appendCoreML(
+  optional<map<string, any>> options, 
+  Ort::SessionOptions* so
+) {
   // fine the flag in options
   bool flag = false;  
   if (options.has_value()) {
@@ -92,8 +94,10 @@ void checkStatusCUDA(OrtStatus* status) {
   }
 }
 
-bool ModelOptions::appendCUDA(optional<map<string, any>> options, std::unique_ptr<Ort::SessionOptions> so)
-{ 
+bool ModelOptions::appendCUDA(
+  optional<map<string, any>> options, 
+  Ort::SessionOptions* so
+) { 
   // init
   OrtCUDAProviderOptionsV2* cudaOptions = nullptr;
   // create CUDA provider options
@@ -165,7 +169,7 @@ SessionOptions ModelOptions::getSessionOptions(
   auto _begin = AVAILABLE_PROVIDERS.begin();
   auto _end = AVAILABLE_PROVIDERS.end();
 
-  auto pSessionOptions = std::make_unique<Ort::SessionOptions>(sessionOptions);
+  Ort::SessionOptions* pSessionOptions = &sessionOptions;
   if (providerName == "CUDAExecutionProvider") {
     this->appendCUDA(options, pSessionOptions);
   } 
