@@ -1,4 +1,12 @@
-#include "model.h"
+// #include "model.h"
+#include <iostream>
+#include <fstream>
+#include <onnxruntime_cxx_api.h>
+#include <memory>
+#include <optional>
+#include <map>
+#include <any>
+#include <ortcxx/model.h>
 
 using namespace std;
 using namespace Ort;
@@ -96,6 +104,8 @@ shared_ptr<vector<Ort::Value>> Model::run(
     shared_ptr<const char*> outputHead,
     const Ort::RunOptions& runOptions
 ) {
+    auto inputNames = this->inputNames;
+    auto outputNames = this->outputNames;
     if (inputs.size() != inputNames.size()) {
         throw runtime_error("Number of input values does not match the number of input names.");
     } 
@@ -114,120 +124,17 @@ shared_ptr<vector<Ort::Value>> Model::run(
         }
     }
 
-    if (this->_session == nullptr)
+    if (this->_session == nullptr) {
         throw runtime_error("Session is not initialized");
+    }
 
-    if (this->_device == "CPU") {
-        try {   
+    try {   
         vector<Ort::Value> outputVector = this->_session->Run(runOptions, inputNames.data(), inputs.data(), inputNames.size(), outputNames.data(), outputNames.size());
         this->isRunned = true;
         return make_shared<vector<Ort::Value>>(move(outputVector));
         }
-        catch (Ort::Exception& exception) {
+    catch (Ort::Exception& exception) {
         cout << "Error: " << exception.what() << endl;
         }
-    }
-    else if (this->_device == "GPU") {
-        //! FIX
-        string deviceType = Model::mapProviderType[this->_device]; 
-        Ort::MemoryInfo cpuMemoryInfo = Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
-        Ort::MemoryInfo gpuMemoryInfo{deviceType.c_str(), OrtDeviceAllocator, 0, OrtMemTypeDefault};
-        Ort::IoBinding ioBinding{*this->_session};
-        
-        for (size_t i = 0; i < inputNames.size(); ++i) {
-            ioBinding.BindInput(inputNames[i], inputs[i]);
-        }
-        
-        for (size_t i = 0; i < outputNames.size(); ++i) {
-        ioBinding.BindOutput(outputNames[i], gpuMemoryInfo);
-        }
-
-        try {
-        this->_session->Run(runOptions, ioBinding);
-        vector<Ort::Value> outputTensor = ioBinding.GetOutputValues();
-        this->isRunned = true;
-        return make_shared<vector<Ort::Value>>(move(outputTensor));
-        }
-        catch (Ort::Exception& exception) {
-        cout << "Error: " << exception.what() << endl;
-        }
-    }
     return nullptr;
-}
-
-
-future<shared_ptr<vector<Ort::Value>>> Model::runAsync(
-    const vector<Ort::Value>& inputs, 
-    shared_ptr<const char*> outputHead,
-    const Ort::RunOptions runOptions){
-    if (inputs.size() != inputNames.size()) {
-        throw runtime_error("Number of input values does not match the number of input names.");
-    }
-
-    if (this->_session == nullptr)
-        throw runtime_error("Session is not initialized");
-    return async(launch::async, &Model::run, this, cref(inputs), outputHead, cref(runOptions));
-}
-
-//FIX
-std::map<std::string, modelConfig> readConfig(const std::string& modelsDir) {
-    std::map<std::string, modelConfig> modelConfigs;
-    try {
-        for (const auto& entry : std::filesystem::directory_iterator(modelsDir)) {
-            if (entry.is_directory()) {
-            std::string modelName = entry.path().filename().string();
-            std::string yamlPath = (entry.path() / (modelName + ".yaml")).string();
-                
-            // Read model name
-            if (!std::filesystem::exists(yamlPath)) {
-                std::cerr << "Config file " << yamlPath << " does not exist." << std::endl;
-                continue;
-            }
-
-            // Read yaml file
-            YAML::Node config = YAML::LoadFile(yamlPath);
-
-            // Options
-            std::map<std::string, std::any> options;
-            if (config["options"]) {
-                options["parallel"] = config["options"]["parallel"].as<bool>();
-                options["inter_ops_threads"] = config["options"]["inter_ops_threads"].as<int>();
-                options["intra_ops_threads"] = config["options"]["intra_ops_threads"].as<int>();
-                options["graph_optimization_level"] = config["options"]["graph_optimization_level"].as<int>();
-            }
-
-            // Providers
-            std::map<std::string, std::optional<std::map<std::string, std::string>>> providers;
-            if (config["providers"]) {
-                for (const auto& provider : config["providers"]) {
-                std::string providerName = provider.first.as<std::string>();
-                if (provider.second.IsMap()) {
-                std::map<std::string, std::string> providerOptions;
-                for (const auto& option : provider.second) 
-                providerOptions[option.first.as<std::string>()] = option.second.as<std::string>();
-                providers[providerName] = providerOptions;
-                } else
-                providers[providerName] = std::nullopt;
-                }
-            }
-
-            // File settings
-            bool encryptedFile = false;
-            if (config["file_settings"]) {
-                encryptedFile = config["file_settings"]["encrypted_file"].as<bool>();
-            }
-            std::string modelFile;
-            if (encryptedFile) 
-                modelFile = (entry.path() / (modelName + ".enc")).string();
-            else 
-                modelFile = (entry.path() / (modelName + ".onnx")).string();
-
-            // Save model config
-            modelConfigs[modelName] = modelConfig{options, providers, encryptedFile, modelFile};
-            }
-        }
-    } catch (const std::exception& e) {
-        std::cerr << "Error reading model configs: " << e.what() << std::endl;
-    }
-    return modelConfigs;
 }
