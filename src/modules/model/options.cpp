@@ -16,24 +16,35 @@ bool ModelOptions::appendVINO(optional<map<string, any>> options)
   return true;
 };
 
-bool ModelOptions::appendNNAPI(optional<map<string, any>> options)
-{
-  for (auto& pair : options.value()) {
-    if (pair.first == "nnapi_flags" && pair.second == 0)
-    {
-      this->_sessOptions.AppendExecutionProvider_Nnapi(pair.second);
-      return true;
-    }
+bool ModelOptions::appendNNAPI(
+  optional<map<string, any>> options,
+  std::unique_ptr<Ort::SessionOptions> so
+) {
+  // fine the flag in options
+  bool flag = false;  
+  auto it = options.find("coreml_flags");
+  
+  // Key found
+  uint32_t nnapi_flags = std::any_cast<int>(it->second);
+  try{
+    // try to append
+    Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_Nnapi(&so, nnapi_flags));
+    //set
+    flag = true;
+  } catch (exception& e) {
+    cout << "Error: " << e.what() << endl;
   }
-  return false;
+  return flag;
 };
 
-bool ModelOptions::appendCPU(optional<map<string, any>> options)
-{
+bool ModelOptions::appendCPU(
+  optional<map<string, any>> options,
+  std::unique_ptr<Ort::SessionOptions> so
+) {
   return true;
 };
 
-bool ModelOptions::appendCoreML(optional<map<string, any>> options)
+bool ModelOptions::appendCoreML(optional<map<string, any>> options, std::unique_ptr<Ort::SessionOptions> so)
 {
   bool flag = false;
   for (auto& pair : options.value()) {
@@ -54,7 +65,7 @@ void checkStatusCUDA(OrtStatus* status) {
   }
 }
 
-bool ModelOptions::appendCUDA(optional<map<string, any>> options)
+bool ModelOptions::appendCUDA(optional<map<string, any>> options, std::unique_ptr<Ort::SessionOptions> so)
 { 
   // init
   OrtCUDAProviderOptionsV2* cudaOptions = nullptr;
@@ -127,17 +138,18 @@ SessionOptions ModelOptions::getSessionOptions(
   auto _begin = AVAILABLE_PROVIDERS.begin();
   auto _end = AVAILABLE_PROVIDERS.end();
 
+  auto pSessionOptions = std::make_unique<Ort::SessionOptions>(sessionOptions);
   if (providerName == "CUDAExecutionProvider") {
-    this->appendCUDA(options);
+    this->appendCUDA(options, pSessionOptions);
   } 
   else if (providerName == "OpenVINOExecutionProvider") {
-    this->appendVINO(options);
+    this->appendVINO(options, pSessionOptions);
   }
   else if (providerName == "NnapiExecutionProvider") {
-    this->appendNNAPI(options);
+    this->appendNNAPI(options, pSessionOptions);
   }
   else if (providerName == "CoreMLExecutionProvider") {
-    this->appendCoreML(options);
+    this->appendCoreML(options, pSessionOptions);
   }
   
   return sessionOptions;
