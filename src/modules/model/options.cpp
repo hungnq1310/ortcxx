@@ -33,17 +33,22 @@ bool ModelOptions::appendNNAPI(
 ) {
   // fine the flag in options
   bool flag = false;  
-  auto it = options.find("coreml_flags");
-  
-  // Key found
-  uint32_t nnapi_flags = std::any_cast<int>(it->second);
-  try{
-    // try to append
-    Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_Nnapi(*so, nnapi_flags));
-    //set
-    flag = true;
-  } catch (exception& e) {
-    cout << "Error: " << e.what() << endl;
+  if (options.has_value()) {
+    auto _options = options.value();
+    auto it = _options.find("nnapi_flags");
+    
+    // Key found
+    if (it != _options.end()) {
+      uint32_t nnapi_flags = std::any_cast<int>(it->second);
+      try {
+        // try to append
+        Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_Nnapi(*so, nnapi_flags));
+        // set
+        flag = true;
+      } catch (exception& e) {
+        cout << "Error: " << e.what() << endl;
+      }
+    }
   }
   return flag;
 };
@@ -59,17 +64,22 @@ bool ModelOptions::appendCoreML(optional<map<string, any>> options, std::unique_
 {
   // fine the flag in options
   bool flag = false;  
-  auto it = options.find("coreml_flags");
-  
-  // Key found
-  uint32_t coreml_flags = std::any_cast<int>(it->second);
-  try{
-    // try to append
-    Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_CoreML(*so, coreml_flags));
-    //set
-    flag = true;
-  } catch (exception& e) {
-    cout << "Error: " << e.what() << endl;
+  if (options.has_value()) {
+    auto _options = options.value();
+    auto it = _options.find("coreml_flags");
+    
+    // Key found
+    if (it != _options.end()) {
+      uint32_t coreml_flags = std::any_cast<int>(it->second);
+      try {
+        // try to append
+        Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_CoreML(*so, coreml_flags));
+        // set
+        flag = true;
+      } catch (exception& e) {
+        cout << "Error: " << e.what() << endl;
+      }
+    }
   }
   return flag;
 };
