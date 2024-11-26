@@ -161,6 +161,8 @@ SessionOptions ModelOptions::getSessionOptions(
   else if (providerName == "CoreMLExecutionProvider") {
     this->appendCoreML(options, pSessionOptions);
   }
-  
+  else {
+    this->appendCPU(options, pSessionOptions);
+  }
   return sessionOptions;
 }
