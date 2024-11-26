@@ -14,19 +14,22 @@ using namespace ortcxx::model;
 
 #define encryptedKey "3!4%@Us287uEUo86^QSA%L"
 
+ModelOptions::ModelOptions() {
+    this->_sessOptions = SessionOptions();
+}
 
 Model::Model(
     std::string model,
     const std::optional<std::map<std::string, std::any>> options,
-    const optional<map<string, optional<map<string, string>>>> providers,
+    const optional<vector<string>> providers,
     bool isEncrypted
 ) {
     // Initialize the environment
     this->_env = make_shared<Ort::Env>(ORT_LOGGING_LEVEL_WARNING, "test");
 
     // Model options
-    ModelOptions model_options(options);
-    this->_sessionOptions = model_options.getSessionOptions(options);
+    ModelOptions model_options;
+    this->_sessionOptions = std::make_unique<Ort::SessionOptions>(model_options.getSessionOptions(options));
   
     ifstream inputFile(model, ios::binary);
     if (!inputFile.is_open()) {
@@ -59,7 +62,7 @@ Model::Model(
     std::shared_ptr<Ort::Env> env,
     std::shared_ptr<Ort::Allocator> allocator,
     const std::optional<std::map<std::string, std::any>> options,
-    const optional<map<string, any>> providers,
+    const optional<vector<string>> providers,
     bool isEncrypted
 ) {
     // Initialize the environment
@@ -67,9 +70,8 @@ Model::Model(
     this->_allocator = allocator;
 
     // Model options
-    ModelOptions model_options(options);
-    this->_sessionOptions = model_options.getSessionOptions(options);
-
+    ModelOptions model_options;
+    this->_sessionOptions = std::make_unique<Ort::SessionOptions>(model_options.getSessionOptions(options));
   
     ifstream inputFile(model, ios::binary);
     if (!inputFile.is_open()) {
