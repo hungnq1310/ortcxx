@@ -50,13 +50,19 @@ bool ModelOptions::appendCPU(
 
 bool ModelOptions::appendCoreML(optional<map<string, any>> options, std::unique_ptr<Ort::SessionOptions> so)
 {
-  bool flag = false;
-  for (auto& pair : options.value()) {
-    if (pair.first == "coreml_flags" && pair.second == 0)
-    {
-      this->_sessOptions.AppendExecutionProvider_CoreML(pair.second);
-      flag = true;
-    }
+  // fine the flag in options
+  bool flag = false;  
+  auto it = options.find("coreml_flags");
+  
+  // Key found
+  uint32_t coreml_flags = std::any_cast<int>(it->second);
+  try{
+    // try to append
+    Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_CoreML(&so, coreml_flags));
+    //set
+    flag = true;
+  } catch (exception& e) {
+    cout << "Error: " << e.what() << endl;
   }
   return flag;
 };
