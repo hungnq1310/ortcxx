@@ -6,7 +6,10 @@ using namespace Ort;
 using namespace ortcxx::model;
 
 
-bool ModelOptions::appendVINO(optional<map<string, any>> options)
+bool ModelOptions::appendVINO(
+  optional<map<string, any>> options,
+  std::unique_ptr<Ort::SessionOptions> so
+)
 {
   std::unordered_map<std::string, std::string> openVINOOptions;
   for (auto& pair : options.value()) {
