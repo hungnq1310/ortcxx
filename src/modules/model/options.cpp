@@ -1,5 +1,6 @@
 #include "model.h"
 #include <onnxruntime_cxx_api.h>
+#include <CL/cl2.hpp>
 
 using namespace std;
 using namespace Ort;
@@ -11,12 +12,12 @@ bool ModelOptions::appendVINO(
   std::unique_ptr<Ort::SessionOptions> so
 )
 {
-  std::unordered_map<std::string, std::string> openVINOOptions;
-  for (auto& pair : options.value()) {
-    openVINOOptions[pair.first] = pair.second;
-  }
-  this->_sessOptions.AppendExecutionProvider("OpenVINO", openVINOOptions);
-  return true;
+  OrtOpenVINOProviderOptions optionsVINO;
+  optionsVINO.device_type = options.find("device_openvino"); //Another option is: GPU_FP16
+  auto ocl_instance = std::make_shared<OpenCL>();
+  optionsVINO.context = (void *) ocl_instance->_context.get() ; 
+  std::cout << "OpenVINO device type is set to: " << options.device_type << std::endl;
+  so->AppendExecutionProvider_OpenVINO(options);
 };
 
 bool ModelOptions::appendNNAPI(
