@@ -61,7 +61,7 @@ class Model {
         std::shared_ptr<Ort::Env> env, 
         std::shared_ptr<Ort::Allocator> allocator, 
         const std::optional<std::map<std::string, std::any>> options,
-        const optional<map<string, any>> providers,
+        const optional<vector<string>> providers,
         bool isEncrypted
       ) {
         return std::shared_ptr<Model>(new Model(model, env, allocator, options, providers, isEncrypted));
@@ -70,7 +70,7 @@ class Model {
       Model(
           std::string model,
           const std::optional<std::map<std::string, std::any>> options,
-          const optional<map<string, optional<map<string, string>>>> providers,
+          const optional<vector<string>> providers,
           bool isEncrypted
       );
 
@@ -93,7 +93,7 @@ class Model {
           std::shared_ptr<Ort::Env> env,
           std::shared_ptr<Ort::Allocator> allocator,
           const std::optional<std::map<std::string, std::any>> options,
-          const optional<map<string, any>> providers,
+          const optional<vector<string>> providers,
           bool isEncrypted
       );
   };
