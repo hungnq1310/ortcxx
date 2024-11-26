@@ -23,11 +23,16 @@ class ModelOptions
 {
 protected:
   SessionOptions _sessOptions;
-  bool appendCPU(optional<map<string, any>> options);
-  bool appendCUDA(optional<map<string, any>> options);
-  bool appendVINO(optional<map<string, any>> options);
-  bool appendNNAPI(optional<map<string, any>> options);
-  bool appendCoreML(optional<map<string, any>> options);
+  bool appendCPU(optional<map<string, any>> options,
+                 std::unique_ptr<Ort::SessionOptions> so);
+  bool appendCUDA(optional<map<string, any>> options,
+                  std::unique_ptr<Ort::SessionOptions> so);
+  bool appendVINO(optional<map<string, any>> options,
+                  std::unique_ptr<Ort::SessionOptions> so); 
+  bool appendNNAPI(optional<map<string, any>> options,
+                  std::unique_ptr<Ort::SessionOptions> so);
+  bool appendCoreML(optional<map<string, any>> options,
+                  std::unique_ptr<Ort::SessionOptions> so);
   
 public:
   ModelOptions();
@@ -80,6 +85,7 @@ class Model {
       );
 
   protected:
+  //? why make this protected?
       Model(
           std::string model,
           std::shared_ptr<Ort::Env> env,
