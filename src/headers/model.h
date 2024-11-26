@@ -30,7 +30,7 @@ protected:
   bool appendCoreML(optional<map<string, any>> options);
   
 public:
-  ModelOptions(optional<map<string, any>> options);
+  ModelOptions();
   SessionOptions getSessionOptions(optional<map<string, any>> options);
 };
 
@@ -43,7 +43,7 @@ class Model {
       std::unique_ptr<Ort::Session> _session;
       std::unique_ptr<ModelOptions> _modelOptions;
       std::string _device;
-      Ort::SessionOptions _sessionOptions;
+      std::unique_ptr<Ort::SessionOptions> _sessionOptions;
       bool isRunned = false;
 
   public:
@@ -89,5 +89,5 @@ class Model {
           bool isEncrypted
       );
   };
-};
+}; // namespace ortcxx::model
 #endif
