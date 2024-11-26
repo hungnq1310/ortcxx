@@ -5,11 +5,6 @@ using namespace std;
 using namespace Ort;
 using namespace ortcxx::model;
 
-ModelOptions::ModelOptions(optional<map<string, any>> options)
-{
-  this->_sessOptions = SessionOptions();
-};
-
 
 bool ModelOptions::appendVINO(optional<map<string, any>> options)
 {
@@ -69,7 +64,7 @@ bool ModelOptions::appendCUDA(optional<map<string, any>> options)
   vector<const char*> values;
   for (auto& pair : options.value()) {
       keys.push_back(pair.first.c_str());
-      values.push_back(pair.second.c_str());
+      values.push_back(any_cast<const char*>(pair.second));
   }
   // update CUDA provider options with options
   checkStatusCUDA(Ort::GetApi().UpdateCUDAProviderOptions(cudaOptions, keys.data(), values.data(), 1));
@@ -85,13 +80,15 @@ SessionOptions ModelOptions::getSessionOptions(
   const optional<map<string, any>> options
 ) {
 
+  Ort::SessionOptions sessionOptions = Ort::SessionOptions();
+
   if (options.has_value()) {
     auto _options = options.value();
     auto _begin = _options.begin();
     auto _end = _options.end();
     if (_options.find("parallel") != _end)
       try {
-        this->_sessOptions.SetExecutionMode(any_cast<bool>(_options.at("parallel")) ? ORT_PARALLEL : ORT_SEQUENTIAL);
+        sessionOptions.SetExecutionMode(any_cast<bool>(_options.at("parallel")) ? ORT_PARALLEL : ORT_SEQUENTIAL);
       } catch (bad_any_cast& e) {
         cout << "Invalid parrallel. Use default value." << endl;
       }
@@ -99,7 +96,7 @@ SessionOptions ModelOptions::getSessionOptions(
       try {
         int threads = any_cast<int>(_options.at("inter_ops_threads"));
         if (threads > 0)
-          this->_sessOptions.SetInterOpNumThreads(threads);
+          sessionOptions.SetInterOpNumThreads(threads);
       } catch (bad_any_cast& e) {
         cout << "Invalid inter_ops_thread. Use default value." << endl;
       }
@@ -107,7 +104,7 @@ SessionOptions ModelOptions::getSessionOptions(
       try {
         int threads = any_cast<int>(_options.at("intra_ops_threads"));
         if (threads > 0)
-          this->_sessOptions.SetIntraOpNumThreads(threads);
+          sessionOptions.SetIntraOpNumThreads(threads);
       } catch(bad_any_cast& e) {
         cout << "Invalid intra_ops_thread. Use default value." << endl;
       }
@@ -115,10 +112,10 @@ SessionOptions ModelOptions::getSessionOptions(
       try {
         int graph = any_cast<int>(_options.at("graph_optimization_level"));
         switch (graph) {
-          case 0: this->_sessOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_DISABLE_ALL); break;
-          case 1: this->_sessOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_BASIC); break;
-          case 2: this->_sessOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED); break;
-          case 3: this->_sessOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL); break;
+          case 0: sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_DISABLE_ALL); break;
+          case 1: sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_BASIC); break;
+          case 2: sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED); break;
+          case 3: sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL); break;
           default: break;
         }
       } catch (bad_any_cast& e) {
@@ -143,5 +140,5 @@ SessionOptions ModelOptions::getSessionOptions(
     this->appendCoreML(options);
   }
   
-  return this->_sessOptions;
+  return sessionOptions;
 }
