@@ -39,7 +39,7 @@ bool ModelOptions::appendNNAPI(
   uint32_t nnapi_flags = std::any_cast<int>(it->second);
   try{
     // try to append
-    Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_Nnapi(&so, nnapi_flags));
+    Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_Nnapi(*so, nnapi_flags));
     //set
     flag = true;
   } catch (exception& e) {
@@ -65,7 +65,7 @@ bool ModelOptions::appendCoreML(optional<map<string, any>> options, std::unique_
   uint32_t coreml_flags = std::any_cast<int>(it->second);
   try{
     // try to append
-    Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_CoreML(&so, coreml_flags));
+    Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_CoreML(*so, coreml_flags));
     //set
     flag = true;
   } catch (exception& e) {
