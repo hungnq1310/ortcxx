@@ -1,8 +1,6 @@
 #include "model.h"
 #include <onnxruntime_cxx_api.h>
 
-#include <CL/cl.h>
-
 using namespace std;
 using namespace Ort;
 using namespace ortcxx::model;
@@ -14,13 +12,12 @@ bool ModelOptions::appendVINO(
 {
   OrtOpenVINOProviderOptions optionsVINO;
   if (options.has_value()) {
-    auto device = options.value().find("device_openvino"); //Another option is: GPU_FP16
+    ///Other options are: GPU_FP32, GPU_FP16, MYRIAD_FP16
+    auto device = options.value().find("device_openvino"); 
     if (device != options.value().end()) {
       optionsVINO.device_type = any_cast<string>(device->second).c_str();
-      auto ocl_instance = std::make_shared<OpenCL>();
-      optionsVINO.context = (void *) ocl_instance->_context.get() ; 
-      std::cout << "OpenVINO device type is set to: " << optionsVINO.device_type << std::endl;
-      so->AppendExecutionProvider_OpenVINO(optionsVINO);
+      std::cout << "OpenVINO device type is set to: " << options.device_type << std::endl;
+      so->AppendExecutionProvider_OpenVINO(options);
       return true;
     }
   }
