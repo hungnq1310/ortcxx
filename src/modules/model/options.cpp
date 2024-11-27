@@ -5,9 +5,6 @@ using namespace std;
 using namespace Ort;
 using namespace ortcxx::model;
 
-ModelOptions::ModelOptions() {
-  this->_sessOptions = Ort::SessionOptions();
-}
 
 bool ModelOptions::appendVINO(
   optional<map<string, any>> options
