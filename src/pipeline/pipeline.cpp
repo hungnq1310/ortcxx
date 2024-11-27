@@ -15,6 +15,12 @@ Pipeline::Pipeline(Model* model){
     );
 }
 
+Pipeline::~Pipeline() {
+    // Release the session
+    this->session = nullptr;
+    this->model = nullptr;
+}
+
 std::shared_ptr<Ort::Value> Pipeline::preprocess(Ort::Value& input) {
     // Default implementation: return the input as is
     std::cout << "Preprocessing..." << std::endl;
