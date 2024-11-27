@@ -14,15 +14,12 @@ class Pipeline {
         Pipeline(Model* model);
         ~Pipeline();
 
-        shared_ptr<Ort::Value> preprocess(Ort::Value& input);
-        shared_ptr<Ort::Value> postprocess(Ort::Value& input);
-        shared_ptr<Ort::Value> inference(Ort::Value& input);
+        Ort::Value* preprocess(Ort::Value* input);
+        Ort::Value* postprocess(Ort::Value* input);
+        Ort::Value* inference(Ort::Value* input);
 
     protected:
         Model* model;
-        Ort::Env env;
-        Ort::SessionOptions session_options;
-        Ort::Session session;
     };
 
 } // namespace pipeline

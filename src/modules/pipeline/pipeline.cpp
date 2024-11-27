@@ -7,34 +7,27 @@ using namespace ortcxx::pipeline;
 
 Pipeline::Pipeline(Model* model){
     this->model = model;
-    this->env = Ort::Env(ORT_LOGGING_LEVEL_WARNING, "Cinnamon");
-    this->session_options = Ort::SessionOptions();
-    this->session = Ort::Session(
-        this->env, 
-        this->model->getModelPath(), 
-        this->session_options
-    );
 }
 
 Pipeline::~Pipeline() {
     // Release the session
-    this->session = nullptr;
+    // this->session = nullptr;
     this->model = nullptr;
 }
 
-std::shared_ptr<Ort::Value> Pipeline::preprocess(Ort::Value& input) {
+Ort::Value* Pipeline::preprocess(Ort::Value* input) {
     // Default implementation: return the input as is
     std::cout << "Preprocessing..." << std::endl;
-    return make_shared<Ort::Value>(input);
+    return input;
 }
 
-std::shared_ptr<Ort::Value> Pipeline::postprocess(Ort::Value& input) {
+Ort::Value* Pipeline::postprocess(Ort::Value* input) {
     // Default implementation: return the input as is
     std::cout << "Postprocessing..." << std::endl;
-    return make_shared<Ort::Value>(input);
+    return input;
 }
 
-std::shared_ptr<Ort::Value> Pipeline::inference(Ort::Value& input) {
+Ort::Value* Pipeline::inference(Ort::Value* input) {
     // Raise an error if this method is not implemented in a derived class
     throw std::runtime_error("Inference method not implemented");
 }
