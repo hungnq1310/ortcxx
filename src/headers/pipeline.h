@@ -4,10 +4,11 @@
 #include <string>
 #include <ortcxx/model.h>
 #include <onnxruntime_cxx_api.h>
+#include <ortcxx/pipeline.h>
 
 using namespace ortcxx::model;
 using namespace std;
-
+namespace ortcxx::pipeline {
 class Pipeline {
     public:
         Pipeline(Model* model);
@@ -23,5 +24,7 @@ class Pipeline {
         Ort::SessionOptions session_options;
         Ort::Session session;
     };
+
+} // namespace pipeline
 
 #endif // __ORTCXX_PIPELINE_H__
