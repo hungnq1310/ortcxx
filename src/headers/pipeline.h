@@ -1,9 +1,9 @@
-#ifndef PIPELINE_H
-#define PIPELINE_H
+#ifndef __ORTCXX_PIPELINE_H__
+#define __ORTCXX_PIPELINE_H__
 
 #include <string>
-#include <model.h>
-#include <onnxruntime/core/session/onnxruntime_cxx_api.h>
+#include <ortcxx/model.h>
+#include <onnxruntime_cxx_api.h>
 
 using namespace ortcxx::model;
 
@@ -22,4 +22,4 @@ class Pipeline {
         Ort::Session session;
     };
 
-#endif // PIPELINE_H
+#endif // __ORTCXX_PIPELINE_H__
