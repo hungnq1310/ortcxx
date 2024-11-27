@@ -4,26 +4,30 @@
 
 using namespace ortcxx::model;
 
-Pipeline::Pipeline(Model model)
-    : env(ORT_LOGGING_LEVEL_WARNING, "Pipeline"),
-      session_options(),
-      session(env, model->GetModelPath().c_str(), session_options) {
-    // Additional initialization if needed
+Pipeline::Pipeline(Model* model){
+    this->model = model;
+    this->env = Ort::Env(ORT_LOGGING_LEVEL_WARNING, "Cinnamon");
+    this->session_options = Ort::SessionOptions();
+    this->session = Ort::Session(
+        this->env, 
+        this->model->getModelPath(), 
+        this->session_options
+    );
 }
 
-Ort::Value Pipeline::preprocess(Ort::Value input) {
+std::shared_ptr<Ort::Value> Pipeline::preprocess(Ort::Value& input) {
     // Default implementation: return the input as is
     std::cout << "Preprocessing..." << std::endl;
-    return input;
+    return make_shared<Ort::Value>(input);
 }
 
-Ort::Value Pipeline::postprocess(Ort::Value input) {
+std::shared_ptr<Ort::Value> Pipeline::postprocess(Ort::Value& input) {
     // Default implementation: return the input as is
     std::cout << "Postprocessing..." << std::endl;
-    return input;
+    return make_shared<Ort::Value>(input);
 }
 
-Ort::Value Pipeline::inference(Ort::Value input) {
+std::shared_ptr<Ort::Value> Pipeline::inference(Ort::Value& input) {
     // Raise an error if this method is not implemented in a derived class
     throw std::runtime_error("Inference method not implemented");
 }
