@@ -23,16 +23,11 @@ class ModelOptions
 {
 protected:
   SessionOptions _sessOptions;
-  bool appendCPU(optional<map<string, any>> options,
-                 Ort::SessionOptions* so);
-  bool appendCUDA(optional<map<string, any>> options,
-                  Ort::SessionOptions* so);
-  bool appendVINO(optional<map<string, any>> options,
-                  Ort::SessionOptions* so); 
-  bool appendNNAPI(optional<map<string, any>> options,
-                  Ort::SessionOptions* so);
-  bool appendCoreML(optional<map<string, any>> options,
-                  Ort::SessionOptions* so);
+  bool appendCPU(optional<map<string, any>> options);
+  bool appendCUDA(optional<map<string, any>> options);
+  bool appendVINO(optional<map<string, any>> options); 
+  bool appendNNAPI(optional<map<string, any>> options);
+  bool appendCoreML(optional<map<string, any>> options);
   
 public:
   ModelOptions();
