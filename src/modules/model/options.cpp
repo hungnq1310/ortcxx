@@ -18,8 +18,8 @@ bool ModelOptions::appendVINO(
     auto device = options.value().find("device_openvino"); 
     if (device != options.value().end()) {
       optionsVINO.device_type = any_cast<string>(device->second).c_str();
-      std::cout << "OpenVINO device type is set to: " << options.device_type << std::endl;
-      this->_sessOptions.AppendExecutionProvider_OpenVINO(options);
+      std::cout << "OpenVINO device type is set to: " << optionsVINO.device_type << std::endl;
+      this->_sessOptions.AppendExecutionProvider_OpenVINO(optionsVINO);
       return true;
     }
   }
