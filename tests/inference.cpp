@@ -43,35 +43,27 @@ int main(){
     Model* pointer_model = &a; 
     Pipeline p = Pipeline(pointer_model); // Pipeline object
     //init pointer
-    Ort::Value* input_p = &inputTensor;
-    Ort::Value* output_p = &inputTensor;
+    Ort::Value* input_p = std::move(&inputTensor);
+    // Ort::Value* output_p = &inputTensor;
+    cout << "input_p: " << &inputTensor << endl;
+    cout << "input_p: " << *input_p << endl;
 
 
-    // Ort::Value input = p.preprocess(*input_p);
+    Ort::Value* output_p = p.preprocess(input_p);
     // Ort::Value output = p.inference(inputTensor);
     // Ort::Value result = p.postprocess(output);
 
-    // try {
-    //     std::shared_ptr<std::vector<Ort::Value>> outputTensors = a.run(
-    //         inputs,
-    //         shared_ptr<const char*>(),
-    //         Ort::RunOptions()
-    //     );
+    cout << "output: " << *output_p<< endl;
+    cout << "output: " << output_p << endl;
 
-    //     std::cout << "Output has : " << outputTensors->size() << " elements\n";
-    //     for (size_t i = 0; i < outputTensors->size(); ++i) {
-    //         std::cout << "Head " << i << ": ";
-    //         auto info = outputTensors->at(i).GetTensorTypeAndShapeInfo();    
-    //         std::vector<int64_t> tensorShape = info.GetShape();
-    //         for (int64_t dim : tensorShape) {
-    //             std::cout << dim << " ";
-    //         }
-    //         std::cout << std::endl;
-    //     }
 
-    // } catch (const std::exception& e) {
-    //     std::cerr << "Exception caught: " << e.what() << std::endl;
-    // }
+    std::cout << "Head " << ": ";
+    //! SEGMENT FAULT HERE
+    auto info = input_p->GetTensorTypeAndShapeInfo(); 
+    std::vector<int64_t> tensorShape = info.GetShape();
 
+    for (int64_t dim : tensorShape) {
+        std::cout << dim << " ";
+    }   
     return 0;
 }
