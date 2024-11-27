@@ -1,8 +1,9 @@
-#include "ortcxx/pipeline.h"
 #include <iostream>
 #include <stdexcept>
+#include <ortcxx/pipeline.h>
 
 using namespace ortcxx::model;
+using namespace ortcxx::pipeline;
 
 Pipeline::Pipeline(Model* model){
     this->model = model;
