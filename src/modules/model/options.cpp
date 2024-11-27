@@ -5,11 +5,13 @@ using namespace std;
 using namespace Ort;
 using namespace ortcxx::model;
 
+ModelOptions::ModelOptions() {
+  this->_sessOptions = Ort::SessionOptions();
+}
+
 bool ModelOptions::appendVINO(
-  optional<map<string, any>> options,
-  Ort::SessionOptions* so
-)
-{
+  optional<map<string, any>> options
+) {
   OrtOpenVINOProviderOptions optionsVINO;
   if (options.has_value()) {
     ///Other options are: GPU_FP32, GPU_FP16, MYRIAD_FP16
@@ -17,7 +19,7 @@ bool ModelOptions::appendVINO(
     if (device != options.value().end()) {
       optionsVINO.device_type = any_cast<string>(device->second).c_str();
       std::cout << "OpenVINO device type is set to: " << options.device_type << std::endl;
-      so->AppendExecutionProvider_OpenVINO(options);
+      this->_sessOptions.AppendExecutionProvider_OpenVINO(options);
       return true;
     }
   }
@@ -25,8 +27,7 @@ bool ModelOptions::appendVINO(
 }
 
 bool ModelOptions::appendNNAPI(
-  optional<map<string, any>> options,
-  Ort::SessionOptions* so
+  optional<map<string, any>> options
 ) {
   // fine the flag in options
   bool flag = false;  
@@ -39,7 +40,10 @@ bool ModelOptions::appendNNAPI(
       uint32_t nnapi_flags = std::any_cast<int>(it->second);
       try {
         // try to append
-        Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_Nnapi(*so, nnapi_flags));
+        Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_Nnapi(
+          this->_sessOptions, 
+          nnapi_flags
+        ));
         // set
         flag = true;
       } catch (exception& e) {
@@ -51,15 +55,13 @@ bool ModelOptions::appendNNAPI(
 };
 
 bool ModelOptions::appendCPU(
-  optional<map<string, any>> options,
-  Ort::SessionOptions* so
+  optional<map<string, any>> options
 ) {
   return true;
 };
 
 bool ModelOptions::appendCoreML(
-  optional<map<string, any>> options, 
-  Ort::SessionOptions* so
+  optional<map<string, any>> options
 ) {
   // fine the flag in options
   bool flag = false;  
@@ -72,7 +74,10 @@ bool ModelOptions::appendCoreML(
       uint32_t coreml_flags = std::any_cast<int>(it->second);
       try {
         // try to append
-        Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_CoreML(*so, coreml_flags));
+        Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_CoreML(
+          this->_sessOptions, 
+          coreml_flags
+        ));
         // set
         flag = true;
       } catch (exception& e) {
@@ -92,8 +97,7 @@ void checkStatusCUDA(OrtStatus* status) {
 }
 
 bool ModelOptions::appendCUDA(
-  optional<map<string, any>> options, 
-  Ort::SessionOptions* so
+  optional<map<string, any>> options
 ) { 
   // init
   OrtCUDAProviderOptionsV2* cudaOptions = nullptr;
@@ -119,15 +123,13 @@ SessionOptions ModelOptions::getSessionOptions(
   const optional<map<string, any>> options
 ) {
 
-  Ort::SessionOptions sessionOptions = Ort::SessionOptions();
-
   if (options.has_value()) {
     auto _options = options.value();
     auto _begin = _options.begin();
     auto _end = _options.end();
     if (_options.find("parallel") != _end)
       try {
-        sessionOptions.SetExecutionMode(any_cast<bool>(_options.at("parallel")) ? ORT_PARALLEL : ORT_SEQUENTIAL);
+        this->_sessOptions.SetExecutionMode(any_cast<bool>(_options.at("parallel")) ? ORT_PARALLEL : ORT_SEQUENTIAL);
       } catch (bad_any_cast& e) {
         cout << "Invalid parrallel. Use default value." << endl;
       }
@@ -135,7 +137,7 @@ SessionOptions ModelOptions::getSessionOptions(
       try {
         int threads = any_cast<int>(_options.at("inter_ops_threads"));
         if (threads > 0)
-          sessionOptions.SetInterOpNumThreads(threads);
+          this->_sessOptions.SetInterOpNumThreads(threads);
       } catch (bad_any_cast& e) {
         cout << "Invalid inter_ops_thread. Use default value." << endl;
       }
@@ -143,7 +145,7 @@ SessionOptions ModelOptions::getSessionOptions(
       try {
         int threads = any_cast<int>(_options.at("intra_ops_threads"));
         if (threads > 0)
-          sessionOptions.SetIntraOpNumThreads(threads);
+          this->_sessOptions.SetIntraOpNumThreads(threads);
       } catch(bad_any_cast& e) {
         cout << "Invalid intra_ops_thread. Use default value." << endl;
       }
@@ -151,10 +153,10 @@ SessionOptions ModelOptions::getSessionOptions(
       try {
         int graph = any_cast<int>(_options.at("graph_optimization_level"));
         switch (graph) {
-          case 0: sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_DISABLE_ALL); break;
-          case 1: sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_BASIC); break;
-          case 2: sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED); break;
-          case 3: sessionOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL); break;
+          case 0: this->_sessOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_DISABLE_ALL); break;
+          case 1: this->_sessOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_BASIC); break;
+          case 2: this->_sessOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_EXTENDED); break;
+          case 3: this->_sessOptions.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_ALL); break;
           default: break;
         }
       } catch (bad_any_cast& e) {
@@ -166,21 +168,21 @@ SessionOptions ModelOptions::getSessionOptions(
   auto _begin = AVAILABLE_PROVIDERS.begin();
   auto _end = AVAILABLE_PROVIDERS.end();
 
-  Ort::SessionOptions* pSessionOptions = &sessionOptions;
+  // Ort::SessionOptions* pSessionOptions = &sessionOptions;
   if (providerName == "CUDAExecutionProvider") {
-    this->appendCUDA(options, pSessionOptions);
+    this->appendCUDA(options);
   } 
   else if (providerName == "OpenVINOExecutionProvider") {
-    this->appendVINO(options, pSessionOptions);
+    this->appendVINO(options);
   }
   else if (providerName == "NnapiExecutionProvider") {
-    this->appendNNAPI(options, pSessionOptions);
+    this->appendNNAPI(options);
   }
   else if (providerName == "CoreMLExecutionProvider") {
-    this->appendCoreML(options, pSessionOptions);
+    this->appendCoreML(options);
   }
   else {
-    this->appendCPU(options, pSessionOptions);
+    this->appendCPU(options);
   }
-  return sessionOptions;
+  return this->_sessOptions.Clone();
 }
