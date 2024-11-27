@@ -29,4 +29,6 @@ set_target_properties(${LIB_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 # Buil executable and tests.
 # -----------------------------------------------------------------------------
 add_executable(hello tests/hello.cpp)
+add_executable(pipeline tests/inference.cpp)
 target_link_libraries(hello ortcxx)
+target_link_libraries(pipeline ortcxx)
