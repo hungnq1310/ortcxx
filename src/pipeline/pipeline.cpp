@@ -1,4 +1,4 @@
-#include "pipeline.h"
+#include "ortcxx/pipeline.h"
 #include <iostream>
 #include <stdexcept>
 
