@@ -1,6 +1,7 @@
 #include <iostream>
 #include <onnxruntime_cxx_api.h>
 #include <ortcxx/model.h>
+#include <fstream>
 
 using namespace std;
 using namespace ortcxx::model;
@@ -89,15 +90,17 @@ int main(){
             std::cout << std::endl;
         }
 
+        auto outputdata = outputTensors->at(0).GetTensorMutableData<float>();
+        auto outputdata2 = outputTensors2->at(0).GetTensorMutableData<float>();
         cout << endl << "Output tensor [0] values: ";
         for (int i = 0; i < 10; i++) {
-            cout << outputTensors->at(0)[i] << " ";
+            cout << outputdata[i] << " ";
         }
         cout << "..." << endl;
 
         cout << endl << "Output tensor [1] values: ";
         for (int i = 0; i < 10; i++) {
-            cout << outputTensors2->at(0)[i] << " ";
+            cout << outputdata2[i] << " ";
         }
 
     } catch (const std::exception& e) {
