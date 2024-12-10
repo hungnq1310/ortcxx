@@ -53,7 +53,6 @@ class Model {
     static std::shared_ptr<Model> create(
       const std::string& modelPath, 
       std::shared_ptr<Ort::Env> env, 
-      std::shared_ptr<Ort::Allocator> allocator, 
       std::optional<std::map<std::string, std::any>> options,
       optional<vector<string>> providers,
       bool isEncrypted
@@ -65,7 +64,6 @@ class Model {
       const char * modelBuffer,
       size_t modelSize,
       std::shared_ptr<Ort::Env> env, 
-      std::shared_ptr<Ort::Allocator> allocator, 
       std::optional<std::map<std::string, std::any>> options,
       optional<vector<string>> providers,
       bool isEncrypted
@@ -91,7 +89,6 @@ class Model {
     Model(
       const std::string modelPath,
       std::shared_ptr<Ort::Env> env,
-      std::shared_ptr<Ort::Allocator> allocator,
       std::optional<std::map<std::string, std::any>> options,
       optional<vector<string>> providers,
       bool isEncrypted
@@ -101,7 +98,6 @@ class Model {
       const char * modelBuffer,
       size_t modelSize,
       std::shared_ptr<Ort::Env> env,
-      std::shared_ptr<Ort::Allocator> allocator,
       std::optional<std::map<std::string, std::any>> options,
       optional<vector<string>> providers,
       bool isEncrypted

@@ -72,14 +72,10 @@ Model::Model(
 Model::Model(
     const std::string modelPath,
     std::shared_ptr<Ort::Env> env,
-    std::shared_ptr<Ort::Allocator> allocator,
     std::optional<std::map<std::string, std::any>> options,
     optional<vector<string>> providers,
     bool isEncrypted
 ) {
-    // Initialize the environment
-    this->_env = env;
-    this->_allocator = allocator;
 
     // Model options
     ifstream inputFile(modelPath, ios::binary);
@@ -96,34 +92,34 @@ Model::Model(
     inputFile.close();
 
     // Initialize the session
-    *this = Model(fileContent, fileSize, env, allocator, options, providers, isEncrypted);
+    *this = Model(fileContent, fileSize, env, options, providers, isEncrypted);
 }
 
 Model::Model(
     const char *modelBuffer,
     size_t modelSize,
     std::shared_ptr<Ort::Env> env,
-    std::shared_ptr<Ort::Allocator> allocator,
     std::optional<std::map<std::string, std::any>> options,
     optional<vector<string>> providers,
     bool isEncrypted
 ) {
     // Initialize the environment
     this->_env = env;
-    //! This allocator is used for input and output names
-    this->_allocator = allocator;
 
     // Model options
     ModelOptions model_options;
     this->_sessionOptions = std::make_unique<Ort::SessionOptions>(model_options.getSessionOptions(options, providers));
 
-    if (this->_sessionOptions.find("kOrtSessionOptionsConfigUseEnvAllocators") == nullptr){
+    if (!this->_sessionOptions->HasConfigEntry("kOrtSessionOptionsConfigUseEnvAllocators")){
         throw runtime_error("Share `Env` was found but config `session.use_env_allocators` has not been set!!!");
     }
 
     // Initialize the session
     this->_session = make_unique<Ort::Session>(*this->_env, modelBuffer, modelSize, *this->_sessionOptions);
-    this->_session
+
+    //! This allocator is used for input and output names
+    this->_allocator = make_shared<Ort::Allocator>(*this->_session, Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault));
+    
     for (size_t i = 0; i < this->_session->GetInputCount(); ++i) {
         Ort::AllocatedStringPtr inputName = this->_session->GetInputNameAllocated(i, *this->_allocator);
         this->inputNames.push_back(inputName.release());
