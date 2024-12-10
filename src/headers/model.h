@@ -57,7 +57,7 @@ class Model {
       optional<vector<string>> providers,
       bool isEncrypted
     ) {
-      return std::shared_ptr<Model>(new Model(modelPath, env, allocator, options, providers, isEncrypted));
+      return std::shared_ptr<Model>(new Model(modelPath, env, options, providers, isEncrypted));
     }
 
     static std::shared_ptr<Model> create(
@@ -68,7 +68,7 @@ class Model {
       optional<vector<string>> providers,
       bool isEncrypted
     ) {
-      return std::shared_ptr<Model>(new Model(modelBuffer, modelSize, env, allocator, options, providers, isEncrypted));
+      return std::shared_ptr<Model>(new Model(modelBuffer, modelSize, env, options, providers, isEncrypted));
     }
 
     Model(
