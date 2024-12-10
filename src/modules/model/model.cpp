@@ -19,19 +19,13 @@ ModelOptions::ModelOptions() {
 }
 
 Model::Model(
-    std::string model,
+    const std::string& modelPath,
     const std::optional<std::map<std::string, std::any>> options,
     const optional<vector<string>> providers,
     bool isEncrypted
 ) {
-    // Initialize the environment
-    this->_env = make_shared<Ort::Env>(ORT_LOGGING_LEVEL_WARNING, "test");
-
-    // Model options
-    ModelOptions model_options;
-    this->_sessionOptions = std::make_unique<Ort::SessionOptions>(model_options.getSessionOptions(options));
-  
-    ifstream inputFile(model, ios::binary);
+    // read the model path
+    ifstream inputFile(modelPath, ios::binary);
     if (!inputFile.is_open()) {
         cerr << "Error reading file." << endl;
     }
@@ -44,7 +38,25 @@ Model::Model(
     inputFile.read(fileContent, fileSize);
     inputFile.close();
 
-    this->_session = make_unique<Ort::Session>(*this->_env, fileContent, fileSize, *this->_sessionOptions);
+    *this = Model(fileContent, fileSize, options, providers, isEncrypted);
+}
+
+Model::Model(
+    const std::string& modelData,
+    size_t modelSize,
+    const std::optional<std::map<std::string, std::any>> options,
+    const optional<vector<string>> providers,
+    bool isEncrypted
+) {
+    // Initialize the environment
+    this->_env = make_shared<Ort::Env>(ORT_LOGGING_LEVEL_WARNING, "test");
+
+    // Model options
+    ModelOptions model_options;
+    this->_sessionOptions = std::make_unique<Ort::SessionOptions>(model_options.getSessionOptions(options));
+
+    // Initialize the session
+    this->_session = make_unique<Ort::Session>(*this->_env, modelData.data(), modelSize, *this->_sessionOptions);
     this->_allocator = make_shared<Ort::Allocator>(*this->_session, Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault));
     for (size_t i = 0; i < this->_session->GetInputCount(); ++i) {
         Ort::AllocatedStringPtr inputName = this->_session->GetInputNameAllocated(i, *this->_allocator);
@@ -58,7 +70,7 @@ Model::Model(
 
 
 Model::Model(
-    std::string model,
+    std::string modelPath,
     std::shared_ptr<Ort::Env> env,
     std::shared_ptr<Ort::Allocator> allocator,
     const std::optional<std::map<std::string, std::any>> options,
@@ -70,9 +82,6 @@ Model::Model(
     this->_allocator = allocator;
 
     // Model options
-    ModelOptions model_options;
-    this->_sessionOptions = std::make_unique<Ort::SessionOptions>(model_options.getSessionOptions(options));
-  
     ifstream inputFile(model, ios::binary);
     if (!inputFile.is_open()) {
         cerr << "Error reading file." << endl;
@@ -87,13 +96,32 @@ Model::Model(
     inputFile.close();
 
     // Initialize the session
-    this->_session = make_unique<Ort::Session>(*this->_env, fileContent, fileSize, *this->_sessionOptions);
-  
+    *this = Model(fileContent, fileSize, env, allocator, options, providers, isEncrypted);
+}
+
+Model::Model(
+    const std::string& modelBuffer,
+    size_t modelSize,
+    std::shared_ptr<Ort::Env> env,
+    std::shared_ptr<Ort::Allocator> allocator,
+    const std::optional<std::map<std::string, std::any>> options,
+    const optional<vector<string>> providers,
+    bool isEncrypted
+) {
+    // Initialize the environment
+    this->_env = env;
+    this->_allocator = allocator;
+
+    // Model options
+    ModelOptions model_options;
+    this->_sessionOptions = std::make_unique<Ort::SessionOptions>(model_options.getSessionOptions(options));
+
+    // Initialize the session
+    this->_session = make_unique<Ort::Session>(*this->_env, modelData.data(), modelSize, *this->_sessionOptions);
     for (size_t i = 0; i < this->_session->GetInputCount(); ++i) {
         Ort::AllocatedStringPtr inputName = this->_session->GetInputNameAllocated(i, *this->_allocator);
         this->inputNames.push_back(inputName.release());
     }
-
     for (size_t i = 0; i < this->_session->GetOutputCount(); ++i) {
         Ort::AllocatedStringPtr outputName = this->_session->GetOutputNameAllocated(i, *this->_allocator);
         this->outputNames.push_back(outputName.release());
