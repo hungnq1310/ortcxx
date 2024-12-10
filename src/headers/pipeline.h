@@ -9,17 +9,32 @@
 using namespace ortcxx::model;
 using namespace std;
 namespace ortcxx::pipeline {
+
 class Pipeline {
+
+    private:
+        // std::map<char*, float> sessionClock;
+        std::chrono::steady_clock::time_point sessionClock;
+        std::thread gc;
+        std::mutex clockMutex;
+        bool stopGCFlag = false;
+        void garbageCollector();
+        int sessionDuration = 500;
+
     public:
-        Pipeline(Model* model);
+        Pipeline(shared_ptr<Model> model);
         ~Pipeline();
 
-        Ort::Value* preprocess(Ort::Value* input);
-        Ort::Value* postprocess(Ort::Value* input);
-        Ort::Value* inference(Ort::Value* input);
+        virtual preprocess();
+        virtual postprocess();
+        virtual inference();        
 
     protected:
-        Model* model;
+        shared_ptr<Model> model;
+        void updateSessionClock();
+        float getSessionClock();
+        void startGC();
+        void stopGC();
     };
 
 } // namespace pipeline
