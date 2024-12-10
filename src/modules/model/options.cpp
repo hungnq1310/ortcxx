@@ -160,6 +160,12 @@ SessionOptions ModelOptions::getSessionOptions(
       } catch (bad_any_cast& e) {
         cout << "Invalud graph_optimization_level. Use default value." << endl;
       }
+    if (_options.find("session.use_env_allocators") != _end)
+      try {
+        this->_sessOptions.AddConfigEntry("kOrtSessionOptionsConfigUseEnvAllocators", "1");
+      } catch (bad_any_cast& e) {
+        cout << "Invalid session_options. Use default value." << endl;
+      }
   }
 
   // check if providers are set
