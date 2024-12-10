@@ -19,8 +19,8 @@ int main(){
     c["inter_ops_threads"] = 1;
     c["intra_ops_threads"] = 1;
     c["graph_optimization_level"] = 1;
-    c['session_state.use_env_allocators'] = true;
-    std::string modelPath = "/home/tiennv/hungnq/ortcxx-1/model_convert/extractor.onnx";
+    c["session.use_env_allocators"] = true;
+    std::string modelPath = "...";
 
     // init env and allocator
     shared_ptr<Ort::Env> env = make_shared<Ort::Env>(ORT_LOGGING_LEVEL_WARNING, "test");

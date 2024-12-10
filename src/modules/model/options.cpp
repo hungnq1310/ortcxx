@@ -37,10 +37,10 @@ bool ModelOptions::appendNNAPI(
       uint32_t nnapi_flags = std::any_cast<int>(it->second);
       try {
         // try to append
-        Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_Nnapi(
-          this->_sessOptions, 
-          nnapi_flags
-        ));
+        // Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_Nnapi(
+        //   this->_sessOptions, 
+        //   nnapi_flags
+        // ));
         // set
         flag = true;
       } catch (exception& e) {
@@ -71,10 +71,10 @@ bool ModelOptions::appendCoreML(
       uint32_t coreml_flags = std::any_cast<int>(it->second);
       try {
         // try to append
-        Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_CoreML(
-          this->_sessOptions, 
-          coreml_flags
-        ));
+        // Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_CoreML(
+        //   this->_sessOptions, 
+        //   coreml_flags
+        // ));
         // set
         flag = true;
       } catch (exception& e) {
@@ -160,7 +160,7 @@ SessionOptions ModelOptions::getSessionOptions(
       } catch (bad_any_cast& e) {
         cout << "Invalud graph_optimization_level. Use default value." << endl;
       }
-    if (_options.find("session.use_env_allocators") != _end)
+    if (any_cast<bool>(_options.at("session.use_env_allocators")) == true)
       try {
         this->_sessOptions.AddConfigEntry("kOrtSessionOptionsConfigUseEnvAllocators", "1");
       } catch (bad_any_cast& e) {
