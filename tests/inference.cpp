@@ -72,5 +72,37 @@ int main(){
     vector<Ort::Value> inputs;
     inputs.push_back(std::move(inputTensor));
 
+    // Run the model 1
+    auto output = pipeline1.model->run(
+        inputs, nullptr, Ort::RunOptions()
+    );
+    auto outputTensor = output->at(0).GetTensorMutableData<float>();
+    auto dims = output->at(0).GetTensorTypeAndShapeInfo().GetShape();
+    printf("Output tensor dims: ");
+    for (int i = 0; i < dims.size(); i++) {
+        cout << dims[i] << " ";
+    }
+    cout << endl << "Output tensor values: ";
+    for (int i = 0; i < 10; i++) {
+        cout << outputTensor[i] << " ";
+    }
+    cout << "..." << endl;
+
+    // Run the model 2
+    auto output2 = pipeline2.model->run(
+        inputs, nullptr, Ort::RunOptions()
+    );
+    auto outputTensor2 = output2->at(0).GetTensorMutableData<float>();
+    auto dims2 = output2->at(0).GetTensorTypeAndShapeInfo().GetShape();
+    printf("Output tensor dims: ");
+    for (int i = 0; i < dims2.size(); i++) {
+        cout << dims2[i] << " ";
+    }
+    cout << endl << "Output tensor values: ";
+    for (int i = 0; i < 10; i++) {
+        cout << outputTensor2[i] << " ";
+    }
+    cout << "..." << endl;
+
     return 0;
 }
