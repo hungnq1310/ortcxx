@@ -24,15 +24,8 @@ void Pipeline::updateSessionClock(){
 
 float Pipeline::getSessionClock(){
     std::lock_guard<std::mutex> lock(clockMutex);
-    // auto currentTime = std::chrono::steady_clock::now();
-    auto it = sessionClock.find(model);
-    if (it != sessionClock.end()) {
-        auto duration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - it->second).count();
-        // std::cout << "Session duration for model " << model << ": " << duration << " seconds" << std::endl;  // Debugging statement
-        return duration;
-    }
-    // std::cout << "Model " << model << " not found in sessionClock" << std::endl;
-    return 0.0f;
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - this->sessionClock).count();
+    return duration;
 }
 
 
