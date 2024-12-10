@@ -52,18 +52,37 @@ class Model {
       };
 
       static std::shared_ptr<Model> create(
-        const std::string& model, 
+        const std::string& modelPath, 
         std::shared_ptr<Ort::Env> env, 
         std::shared_ptr<Ort::Allocator> allocator, 
         const std::optional<std::map<std::string, std::any>> options,
         const optional<vector<string>> providers,
         bool isEncrypted
       ) {
-        return std::shared_ptr<Model>(new Model(model, env, allocator, options, providers, isEncrypted));
+        return std::shared_ptr<Model>(new Model(modelPath, env, allocator, options, providers, isEncrypted));
+      }
+      static std::shared_ptr<Model> create(
+        const std::string& modelBuffer,
+        size_t modelSize,
+        std::shared_ptr<Ort::Env> env, 
+        std::shared_ptr<Ort::Allocator> allocator, 
+        const std::optional<std::map<std::string, std::any>> options,
+        const optional<vector<string>> providers,
+        bool isEncrypted
+      ) {
+        return std::shared_ptr<Model>(new Model(modelBuffer, modelSize, env, allocator, options, providers, isEncrypted));
       }
 
       Model(
-          std::string model,
+        const std::string& modelPath,
+        const std::optional<std::map<std::string, std::any>> options,
+        const optional<vector<string>> providers,
+        bool isEncrypted
+      );
+
+      Model(
+          const std::string& modelBuffer,
+          size_t modelSize,
           const std::optional<std::map<std::string, std::any>> options,
           const optional<vector<string>> providers,
           bool isEncrypted
@@ -84,7 +103,17 @@ class Model {
   protected:
   //? why make this protected?
       Model(
-          std::string model,
+          std::string modelPath,
+          std::shared_ptr<Ort::Env> env,
+          std::shared_ptr<Ort::Allocator> allocator,
+          const std::optional<std::map<std::string, std::any>> options,
+          const optional<vector<string>> providers,
+          bool isEncrypted
+      );
+
+      Model(
+          const std::string& modelBuffer,
+          size_t modelSize,
           std::shared_ptr<Ort::Env> env,
           std::shared_ptr<Ort::Allocator> allocator,
           const std::optional<std::map<std::string, std::any>> options,
