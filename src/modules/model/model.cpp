@@ -110,11 +110,16 @@ Model::Model(
 ) {
     // Initialize the environment
     this->_env = env;
+    //! This allocator is used for input and output names
     this->_allocator = allocator;
 
     // Model options
     ModelOptions model_options;
     this->_sessionOptions = std::make_unique<Ort::SessionOptions>(model_options.getSessionOptions(options, providers));
+
+    if (this->_sessionOptions.find("kOrtSessionOptionsConfigUseEnvAllocators") == nullptr){
+        throw runtime_error("Share `Env` was found but config `session.use_env_allocators` has not been set!!!");
+    }
 
     // Initialize the session
     this->_session = make_unique<Ort::Session>(*this->_env, modelBuffer, modelSize, *this->_sessionOptions);
