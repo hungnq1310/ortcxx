@@ -117,7 +117,8 @@ Model::Model(
     this->_sessionOptions = std::make_unique<Ort::SessionOptions>(model_options.getSessionOptions(options, providers));
 
     // Initialize the session
-    this->_session = make_unique<Ort::Session>(*this->_env, modelBuffer.data(), modelSize, *this->_sessionOptions);
+    this->_session = make_unique<Ort::Session>(*this->_env, modelBuffer, modelSize, *this->_sessionOptions);
+    this->_session
     for (size_t i = 0; i < this->_session->GetInputCount(); ++i) {
         Ort::AllocatedStringPtr inputName = this->_session->GetInputNameAllocated(i, *this->_allocator);
         this->inputNames.push_back(inputName.release());
