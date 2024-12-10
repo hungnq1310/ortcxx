@@ -42,7 +42,7 @@ Model::Model(
 }
 
 Model::Model(
-    const std::string& modelData,
+    const std::string& modelBuffer,
     size_t modelSize,
     std::optional<std::map<std::string, std::any>> options,
     optional<vector<string>> providers,
@@ -53,10 +53,10 @@ Model::Model(
 
     // Model options
     ModelOptions model_options;
-    this->_sessionOptions = std::make_unique<Ort::SessionOptions>(model_options.getSessionOptions(options));
+    this->_sessionOptions = std::make_unique<Ort::SessionOptions>(model_options.getSessionOptions(options, providers));
 
     // Initialize the session
-    this->_session = make_unique<Ort::Session>(*this->_env, modelData.data(), modelSize, *this->_sessionOptions);
+    this->_session = make_unique<Ort::Session>(*this->_env, modelBuffer.data(), modelSize, *this->_sessionOptions);
     this->_allocator = make_shared<Ort::Allocator>(*this->_session, Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault));
     for (size_t i = 0; i < this->_session->GetInputCount(); ++i) {
         Ort::AllocatedStringPtr inputName = this->_session->GetInputNameAllocated(i, *this->_allocator);
@@ -82,7 +82,7 @@ Model::Model(
     this->_allocator = allocator;
 
     // Model options
-    ifstream inputFile(model, ios::binary);
+    ifstream inputFile(modelPath, ios::binary);
     if (!inputFile.is_open()) {
         cerr << "Error reading file." << endl;
     }
@@ -114,10 +114,10 @@ Model::Model(
 
     // Model options
     ModelOptions model_options;
-    this->_sessionOptions = std::make_unique<Ort::SessionOptions>(model_options.getSessionOptions(options));
+    this->_sessionOptions = std::make_unique<Ort::SessionOptions>(model_options.getSessionOptions(options, providers));
 
     // Initialize the session
-    this->_session = make_unique<Ort::Session>(*this->_env, modelData.data(), modelSize, *this->_sessionOptions);
+    this->_session = make_unique<Ort::Session>(*this->_env, modelBuffer.data(), modelSize, *this->_sessionOptions);
     for (size_t i = 0; i < this->_session->GetInputCount(); ++i) {
         Ort::AllocatedStringPtr inputName = this->_session->GetInputNameAllocated(i, *this->_allocator);
         this->inputNames.push_back(inputName.release());
