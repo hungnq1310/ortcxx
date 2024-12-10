@@ -2,6 +2,7 @@
 #include <onnxruntime_cxx_api.h>
 #include <ortcxx/model.h>
 #include <ortcxx/pipeline.h>
+#include <fstream>
 
 using namespace std;
 using namespace ortcxx::model;
@@ -18,14 +19,47 @@ int main(){
     c["inter_ops_threads"] = 1;
     c["intra_ops_threads"] = 1;
     c["graph_optimization_level"] = 1;
+    c['session_state.use_env_allocators'] = true;
+    std::string modelPath = "/home/tiennv/hungnq/ortcxx-1/model_convert/extractor.onnx";
 
-    // modelNm = "model_convert/extractor.onnx";
-    std::string modelPath = "...";
-    std::string modelName = "extractor.onnx";
-    c["extractor.onnx"] = modelName;
+    // init env and allocator
+    shared_ptr<Ort::Env> env = make_shared<Ort::Env>(ORT_LOGGING_LEVEL_WARNING, "test");
+    env->CreateAndRegisterAllocator(Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault), {});
 
-    Model a = Model(modelPath, c, providers, false);
+    //--------------------------------------------------------------------------------
 
+    // Model a - Model file
+    //test pipeline
+    shared_ptr<Model> pointer_model1 = Model::create(
+        modelPath, env, c, providers, false
+    );
+    //init pointer
+    Pipeline pipeline1 = Pipeline(pointer_model1);
+    printf("Address of pipeline object: %p\n", &pipeline1);
+
+    //--------------------------------------------------------------------------------
+
+    // Model b - Model buffer
+    ifstream inputFile(modelPath, ios::binary);
+    if (!inputFile.is_open()) {
+        cerr << "Error reading file." << endl;
+    }
+    inputFile.seekg(0, inputFile.end);
+    size_t fileSize = inputFile.tellg();
+    inputFile.seekg(0, inputFile.beg);
+    char *fileContent = new char[fileSize];
+    inputFile.read(fileContent, fileSize);
+    inputFile.close();
+    //test pipeline 1
+    shared_ptr<Model> pointer_mode2 = Model::create(
+        fileContent, fileSize, env, c, providers, false
+    );
+    Pipeline pipeline2 = Pipeline(pointer_mode2);
+    printf("Address of pipeline object: %p\n", &pipeline2);
+
+    //--------------------------------------------------------------------------------
+
+    // Dump input tensor
     vector<int64_t> inputShape = {1, 3, 256, 256};
     vector<float> input_ = vector<float>(1 * 3 * 256 * 256, 1.0);
 
@@ -38,32 +72,5 @@ int main(){
     vector<Ort::Value> inputs;
     inputs.push_back(std::move(inputTensor));
 
-    vector<Ort::Value> outputs;
-
-    Model* pointer_model = &a; 
-    Pipeline p = Pipeline(pointer_model); // Pipeline object
-    //init pointer
-    Ort::Value* input_p = std::move(&inputTensor);
-    // Ort::Value* output_p = &inputTensor;
-    cout << "input_p: " << &inputTensor << endl;
-    cout << "input_p: " << *input_p << endl;
-
-
-    Ort::Value* output_p = p.preprocess(input_p);
-    // Ort::Value output = p.inference(inputTensor);
-    // Ort::Value result = p.postprocess(output);
-
-    cout << "output: " << *output_p<< endl;
-    cout << "output: " << output_p << endl;
-
-
-    std::cout << "Head " << ": ";
-    //! SEGMENT FAULT HERE
-    auto info = input_p->GetTensorTypeAndShapeInfo(); 
-    std::vector<int64_t> tensorShape = info.GetShape();
-
-    for (int64_t dim : tensorShape) {
-        std::cout << dim << " ";
-    }   
     return 0;
 }
