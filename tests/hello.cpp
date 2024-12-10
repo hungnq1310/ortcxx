@@ -22,8 +22,23 @@ int main(){
     std::string modelName = "extractor.onnx";
     c["extractor.onnx"] = modelName;
 
+    // Model a - Model file
     Model a = Model(modelPath, c, providers, false);
 
+    // Model b - Model buffer
+    ifstream inputFile(modelPath, ios::binary);
+    if (!inputFile.is_open()) {
+        cerr << "Error reading file." << endl;
+    }
+    inputFile.seekg(0, inputFile.end);
+    size_t fileSize = inputFile.tellg();
+    inputFile.seekg(0, inputFile.beg);
+    char *fileContent = new char[fileSize];
+    inputFile.read(fileContent, fileSize);
+    inputFile.close();
+    Model b = Model(fileContent, fileSize, c, providers, false);
+
+    // Dummy input
     vector<int64_t> inputShape = {1, 3, 256, 256};
     vector<float> input_ = vector<float>(1 * 3 * 256 * 256, 1.0);
 
@@ -45,15 +60,44 @@ int main(){
             Ort::RunOptions()
         );
 
+        std::shared_ptr<std::vector<Ort::Value>> outputTensors2 = b.run(
+            inputs,
+            shared_ptr<const char*>(),
+            Ort::RunOptions()
+        );
+
         std::cout << "Output has : " << outputTensors->size() << " elements\n";
+        std::cout << "Output2 has : " << outputTensors2->size() << " elements\n";
+
         for (size_t i = 0; i < outputTensors->size(); ++i) {
-            std::cout << "Head " << i << ": ";
+            std::cout << "Head Model 1" << i << ": ";
             auto info = outputTensors->at(i).GetTensorTypeAndShapeInfo();    
             std::vector<int64_t> tensorShape = info.GetShape();
             for (int64_t dim : tensorShape) {
                 std::cout << dim << " ";
             }
             std::cout << std::endl;
+        }
+
+        for (size_t i = 0; i < outputTensors2->size(); ++i) {
+            std::cout << "Head model 2 " << i << ": ";
+            auto info = outputTensors2->at(i).GetTensorTypeAndShapeInfo();    
+            std::vector<int64_t> tensorShape = info.GetShape();
+            for (int64_t dim : tensorShape) {
+                std::cout << dim << " ";
+            }
+            std::cout << std::endl;
+        }
+
+        cout << endl << "Output tensor [0] values: ";
+        for (int i = 0; i < 10; i++) {
+            cout << outputTensors->at(0)[i] << " ";
+        }
+        cout << "..." << endl;
+
+        cout << endl << "Output tensor [1] values: ";
+        for (int i = 0; i < 10; i++) {
+            cout << outputTensors2->at(0)[i] << " ";
         }
 
     } catch (const std::exception& e) {
