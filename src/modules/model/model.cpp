@@ -20,8 +20,8 @@ ModelOptions::ModelOptions() {
 
 Model::Model(
     const std::string& modelPath,
-    const std::optional<std::map<std::string, std::any>> options,
-    const optional<vector<string>> providers,
+    std::optional<std::map<std::string, std::any>> options,
+    optional<vector<string>> providers,
     bool isEncrypted
 ) {
     // read the model path
@@ -44,8 +44,8 @@ Model::Model(
 Model::Model(
     const std::string& modelData,
     size_t modelSize,
-    const std::optional<std::map<std::string, std::any>> options,
-    const optional<vector<string>> providers,
+    std::optional<std::map<std::string, std::any>> options,
+    optional<vector<string>> providers,
     bool isEncrypted
 ) {
     // Initialize the environment
@@ -73,8 +73,8 @@ Model::Model(
     std::string modelPath,
     std::shared_ptr<Ort::Env> env,
     std::shared_ptr<Ort::Allocator> allocator,
-    const std::optional<std::map<std::string, std::any>> options,
-    const optional<vector<string>> providers,
+    std::optional<std::map<std::string, std::any>> options,
+    optional<vector<string>> providers,
     bool isEncrypted
 ) {
     // Initialize the environment
@@ -104,8 +104,8 @@ Model::Model(
     size_t modelSize,
     std::shared_ptr<Ort::Env> env,
     std::shared_ptr<Ort::Allocator> allocator,
-    const std::optional<std::map<std::string, std::any>> options,
-    const optional<vector<string>> providers,
+    std::optional<std::map<std::string, std::any>> options,
+    optional<vector<string>> providers,
     bool isEncrypted
 ) {
     // Initialize the environment

@@ -117,9 +117,10 @@ bool ModelOptions::appendCUDA(
 
 
 SessionOptions ModelOptions::getSessionOptions(
-  const optional<map<string, any>> options
+  optional<map<string, any>> options,
+  optional<vector<string>> providers
 ) {
-
+  // check if options are set
   if (options.has_value()) {
     auto _options = options.value();
     auto _begin = _options.begin();
@@ -161,10 +162,18 @@ SessionOptions ModelOptions::getSessionOptions(
       }
   }
 
-  auto providerName =  AVAILABLE_PROVIDERS.front();
-  auto _begin = AVAILABLE_PROVIDERS.begin();
-  auto _end = AVAILABLE_PROVIDERS.end();
+  // check if providers are set
+  vector<string> AVAILABLE_PROVIDERS;
+  if (providers.has_value()) {
+    AVAILABLE_PROVIDERS = providers.value();
+  }
+  else {
+    AVAILABLE_PROVIDERS = Ort::GetAvailableProviders();
+  }
 
+  // get the first provider
+  auto providerName =  AVAILABLE_PROVIDERS.front();
+  
   // Ort::SessionOptions* pSessionOptions = &sessionOptions;
   if (providerName == "CUDAExecutionProvider") {
     this->appendCUDA(options);
