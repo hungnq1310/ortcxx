@@ -25,9 +25,9 @@ class Pipeline {
         Pipeline(shared_ptr<Model> model);
         ~Pipeline();
 
-        virtual preprocess();
-        virtual postprocess();
-        virtual inference();        
+        void preprocess() virtual;
+        void postprocess() virtual;
+        void inference() virtual;        
 
     protected:
         shared_ptr<Model> model;
