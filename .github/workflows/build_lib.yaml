@@ -1,0 +1,54 @@
+name: Build Library
+
+on:
+  push:
+    branches:
+      - master
+      - dev*
+  pull_request:
+    branches:
+      - master
+      - dev*
+
+jobs:
+  build_server:
+    run-ons: ${ { matrix.os } }
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        compiler: [gcc, clang]
+        exclude:
+          - os: windows-latest
+            compiler: clang
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up CMake
+        uses: jwlawson/actions-setup-cmake@v1
+
+      - name: Install dependencies
+        run: |
+          if [ ${{ matrix.os }} == 'ubuntu-latest' ]; then
+            sudo apt-get update
+            sudo apt-get install -y build-essential cmake
+          elif [ ${{ matrix.os }} == 'macos-latest' ]; then
+            brew install cmake
+          elif [ ${{ matrix.os }} == 'windows-latest' ]; then
+            choco install cmake --installargs 'ADD_CMAKE_TO_PATH=System'
+          fi
+
+      - name: Configure CMake
+        run: cmake -S . -B build
+
+      - name: Build
+        run: make -C build
+
+      - name: Install
+        run: make -C build install
+
+
+  
+        
+
+
