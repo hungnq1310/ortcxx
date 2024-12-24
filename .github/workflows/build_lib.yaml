@@ -40,13 +40,9 @@ jobs:
         with:
           repository: 'microsoft/onnxruntime'
           tag: ${{ matrix.ort_version }}
-        if : ${{ matrix.os == 'windows-latest' }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-        fileName: 'onnxruntime-${{ OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.zip'
-        out-file-path: 'libs'
-        extract: true
+          fileName: 'onnxruntime-${{ OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}'
+          out-file-path: 'libs'
+          extract: true
 
       - name: Set up CMake
         uses: jwlawson/actions-setup-cmake@v1
