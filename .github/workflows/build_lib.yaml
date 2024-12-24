@@ -73,14 +73,18 @@ jobs:
           out-file-path: 'libs'
           extract: true
 
-      - name: Extract ort and rename folder
+      - name: Extract ort and rename folder (Unix)
+        if: ${{ matrix.os != 'windows-latest' }}
         run: |
-          if [ "${{ env.EXTENSION }}" == "zip" ]; then
-            7z x -aoa ${{ github.workspace }}/libs/onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.${{ env.EXTENSION }} -o${{ github.workspace }}/libs
-          else
-            tar -xzf ${{ github.workspace }}/libs/onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.${{ env.EXTENSION }} -C ${{ github.workspace }}/libs
-          fi
+          tar -xzf ${{ github.workspace }}/libs/onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.${{ env.EXTENSION }} -C ${{ github.workspace }}/libs
           mv ${{ github.workspace }}/libs/onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }} ${{ github.workspace }}/libs/onnxruntime
+
+      - name: Extract ort and rename folder (Windows)
+        if: ${{ matrix.os == 'windows-latest' }}
+        run: |
+          7z x -aoa ${{ github.workspace }}/libs/onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.${{ env.EXTENSION }} -o${{ github.workspace }}/libs
+          mv ${{ github.workspace }}\libs\onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }} ${{ github.workspace }}\libs\onnxruntime
+        shell: pwsh
 
       # ref:https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
       - name: Set reusable strings
