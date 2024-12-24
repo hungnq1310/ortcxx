@@ -45,7 +45,8 @@ jobs:
           clean: true
 
       - name: Debug OS Value
-        run: echo "Matrix OS: ${{ matrix.os }}"
+        run: |
+          echo "Matrix OS: ${{ matrix.os }}"
 
       - name: Set OS variable based on Unix 
         if: ${{ matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest' }}
