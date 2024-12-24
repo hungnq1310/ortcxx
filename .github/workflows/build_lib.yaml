@@ -40,7 +40,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set variable based on OS
         run: |
@@ -62,6 +62,15 @@ jobs:
           fileName: 'onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.${{ env.EXTENSION }}'
           out-file-path: 'libs'
           extract: true
+
+      - name: Extract ort and rename folder
+        run: |
+          if [ "${{ env.EXTENSION }}" == "zip" ]; then
+            7z x ${{ github.workspace }}/libs/onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.${{ env.EXTENSION }} -o${{ github.workspace }}/libs
+          else
+            tar -xzf ${{ github.workspace }}/libs/onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.${{ env.EXTENSION }} -C ${{ github.workspace }}/libs
+          fi
+          mv ${{ github.workspace }}/libs/onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }} ${{ github.workspace }}/libs/onnxruntime
 
       # ref:https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
       - name: Set reusable strings
