@@ -14,7 +14,9 @@ jobs:
   build:
     strategy:
       matrix:
+        ort_version: [v1.19.0]
         os: [ubuntu-latest, windows-latest, macos-latest]
+        architecture: [x64]
         compiler: [gcc, clang]
         exclude:
           - os: windows-latest
@@ -23,6 +25,28 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
+      - name: Set variable based on OS
+        run: |
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
+            echo "OS_PLATFORM=linux" >> $GITHUB_ENV
+          elif [ "${{ matrix.os }}" == "macos-latest" ]; then
+            echo "OS_PLATFORM=osx" >> $GITHUB_ENV
+          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
+            echo "OS_PLATFORM=win" >> $GITHUB_ENV
+          fi
+
+      - uses: robinraju/release-downloader@v1
+        with:
+          repository: 'microsoft/onnxruntime'
+          tag: ${{ matrix.ort_version }}
+        if : ${{ matrix.os == 'windows-latest' }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+        fileName: 'onnxruntime-${{ OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.zip'
+        out-file-path: 'libs'
+        extract: true
 
       - name: Set up CMake
         uses: jwlawson/actions-setup-cmake@v1
