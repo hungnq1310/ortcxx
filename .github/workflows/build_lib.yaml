@@ -40,7 +40,7 @@ jobs:
         with:
           repository: 'microsoft/onnxruntime'
           tag: ${{ matrix.ort_version }}
-          fileName: 'onnxruntime-${{ OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}'
+          fileName: 'onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}'
           out-file-path: 'libs'
           extract: true
 
