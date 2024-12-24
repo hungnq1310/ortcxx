@@ -42,7 +42,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set variable based on OS
+      - name: Set OS variable based on Unix 
+        if: ${{ matrix.os == "ubuntu-latest" || matrix.os == "macos-latest" }}
         run: |
           if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
             echo "OS_PLATFORM=linux" >> $GITHUB_ENV
@@ -50,10 +51,13 @@ jobs:
           elif [ "${{ matrix.os }}" == "macos-latest" ]; then
             echo "OS_PLATFORM=osx" >> $GITHUB_ENV
             echo "EXTENSION=tgz" >> $GITHUB_ENV
-          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
-            echo "OS_PLATFORM=win" >> $GITHUB_ENV
-            echo "EXTENSION=zip" >> $GITHUB_ENV
           fi
+
+      - name: Set OS variable based on Windows 
+        if: ${{ matrix.os == "windows-latest" }}
+        run: |
+          echo "OS_PLATFORM=win" >> $GITHUB_ENV
+          echo "EXTENSION=zip" >> $GITHUB_ENV
 
       - uses: robinraju/release-downloader@v1
         with:
