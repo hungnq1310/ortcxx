@@ -43,7 +43,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set OS variable based on Unix 
-        if: ${{ matrix.os == "ubuntu-latest" || matrix.os == "macos-latest" }}
+        if: ${{ matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest' }}
         run: |
           if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
             echo "OS_PLATFORM=linux" >> $GITHUB_ENV
