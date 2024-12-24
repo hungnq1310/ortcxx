@@ -43,7 +43,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set OS variable based on Unix 
-        if: ${{ matrix.os }} != "windows-latest"
+        if: ${{ matrix.os }} == "ubuntu-latest" || ${{ matrix.os }} == "macos-latest"
         run: |
           if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
             echo "OS_PLATFORM=linux" >> $GITHUB_ENV
@@ -70,7 +70,7 @@ jobs:
       - name: Extract ort and rename folder
         run: |
           if [ "${{ env.EXTENSION }}" == "zip" ]; then
-            7z x -y ${{ github.workspace }}/libs/onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.${{ env.EXTENSION }} -o${{ github.workspace }}/libs
+            7z x -S ${{ github.workspace }}/libs/onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.${{ env.EXTENSION }} -o${{ github.workspace }}/libs
           else
             tar -xzf ${{ github.workspace }}/libs/onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.${{ env.EXTENSION }} -C ${{ github.workspace }}/libs
           fi
