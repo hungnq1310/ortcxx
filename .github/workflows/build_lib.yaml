@@ -44,8 +44,11 @@ jobs:
         with:
           clean: true
 
+      - name: Debug OS Value
+        run: echo "Matrix OS: ${{ matrix.os }}"
+
       - name: Set OS variable based on Unix 
-        if: matrix.os == "ubuntu-latest" || matrix.os == "macos-latest"
+        if: ${{ matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest' }}
         run: |
           if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
             echo "OS_PLATFORM=linux" >> $GITHUB_ENV
@@ -56,7 +59,7 @@ jobs:
           fi
 
       - name: Set OS variable based on Windows 
-        if: matrix.os == "windows-latest"
+        if: ${{ matrix.os == 'windows-latest' }}
         run: |
           echo "OS_PLATFORM=win" >> $GITHUB_ENV
           echo "EXTENSION=zip" >> $GITHUB_ENV
