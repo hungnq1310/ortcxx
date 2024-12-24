@@ -47,9 +47,6 @@ jobs:
           out-file-path: 'libs'
           extract: true
 
-      - name: Set up CMake
-        uses: jwlawson/actions-setup-cmake@v1
-
       - name: Install dependencies
         run: |
           if [ ${{ matrix.os }} == 'ubuntu-latest' ]; then
