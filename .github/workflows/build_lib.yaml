@@ -30,17 +30,20 @@ jobs:
         run: |
           if [ "${{ matrix.os }}" == "ubuntu-latest" ]; then
             echo "OS_PLATFORM=linux" >> $GITHUB_ENV
+            echo "EXTENSION=tgz" >> $GITHUB_ENV
           elif [ "${{ matrix.os }}" == "macos-latest" ]; then
             echo "OS_PLATFORM=osx" >> $GITHUB_ENV
+            echo "EXTENSION=tgz" >> $GITHUB_ENV
           elif [ "${{ matrix.os }}" == "windows-latest" ]; then
             echo "OS_PLATFORM=win" >> $GITHUB_ENV
+            echo "EXTENSION=zip" >> $GITHUB_ENV
           fi
 
       - uses: robinraju/release-downloader@v1
         with:
           repository: 'microsoft/onnxruntime'
           tag: ${{ matrix.ort_version }}
-          fileName: 'onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}'
+          fileName: 'onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.${{ env.EXTENSION }}'
           out-file-path: 'libs'
           extract: true
 
