@@ -62,8 +62,8 @@ jobs:
       - name: Set OS variable based on Windows 
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
-          echo "OS_PLATFORM=win" >> $GITHUB_ENV
-          echo "EXTENSION=zip" >> $GITHUB_ENV
+          echo "OS_PLATFORM=win" >> $env:GITHUB_ENV
+          echo "EXTENSION=zip" >> $env:GITHUB_ENV
 
       - uses: robinraju/release-downloader@v1
         with:
@@ -107,7 +107,7 @@ jobs:
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: binary-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}
+          name: binary-${{ matrix.c_compiler }}-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}
           path: ${{ steps.strings.outputs.build-output-dir }}/*.so
   
         
