@@ -11,7 +11,7 @@ on:
       - 'dev/*'
 
 jobs:
-  build_server:
+  build:
     run-ons: ${ { matrix.os } }
     strategy:
       matrix:
