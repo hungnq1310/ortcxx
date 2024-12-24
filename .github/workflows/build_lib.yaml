@@ -42,7 +42,7 @@ jobs:
       - uses: robinraju/release-downloader@v1
         with:
           repository: 'microsoft/onnxruntime'
-          tag: ${{ matrix.ort_version }}
+          tag: 'v${{ matrix.ort_version }}' # include v prefix
           fileName: 'onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.${{ env.EXTENSION }}'
           out-file-path: 'libs'
           extract: true
