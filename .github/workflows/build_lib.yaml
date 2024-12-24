@@ -12,7 +12,6 @@ on:
 
 jobs:
   build:
-    run-ons: ${ { matrix.os } }
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -20,6 +19,7 @@ jobs:
         exclude:
           - os: windows-latest
             compiler: clang
+    run-ons: ${ { matrix.os } }
     steps:
       - name: Checkout
         uses: actions/checkout@v2
