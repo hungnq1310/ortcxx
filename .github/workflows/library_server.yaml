@@ -32,6 +32,7 @@ jobs:
         run: |
           echo "Matrix OS: ${{ matrix.os }}"
 
+      # 1a
       - name: Set OS variable based on Unix 
         if: ${{ matrix.os == 'ubuntu-latest' || matrix.os == 'macos-latest' }}
         run: |
@@ -42,13 +43,23 @@ jobs:
             echo "OS_PLATFORM=osx" >> $GITHUB_ENV
             echo "EXTENSION=tgz" >> $GITHUB_ENV
           fi
-
+      # 1b
       - name: Set OS variable based on Windows 
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
           echo "OS_PLATFORM=win" >> $env:GITHUB_ENV
           echo "EXTENSION=zip" >> $env:GITHUB_ENV
 
+      # 1c
+      # ref:https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
+      - name: Set reusable strings
+        # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
+        id: strings
+        shell: bash
+        run: |
+          echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+      # 2
       - uses: robinraju/release-downloader@v1
         with:
           repository: 'microsoft/onnxruntime'
@@ -58,7 +69,7 @@ jobs:
           extract: true
 
       - name: Extract ort and rename folder (Unix)
-        if: ${{ matrix.os != 'windows-latest' }}
+        if: ${{ matrix.os != 'windows-latest' }} # ubuntu & macos
         run: |
           tar -xzf ${{ github.workspace }}/libs/onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.${{ env.EXTENSION }} -C ${{ github.workspace }}/libs
           mv ${{ github.workspace }}/libs/onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }} ${{ github.workspace }}/libs/onnxruntime
@@ -70,14 +81,7 @@ jobs:
           mv ${{ github.workspace }}\libs\onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }} ${{ github.workspace }}\libs\onnxruntime
         shell: pwsh
 
-      # ref:https://github.com/actions/starter-workflows/blob/main/ci/cmake-multi-platform.yml
-      - name: Set reusable strings
-        # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
-        id: strings
-        shell: bash
-        run: |
-          echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
-
+      # 3: CORE
       - name: Configure CMake
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
         # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
@@ -92,12 +96,28 @@ jobs:
         # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
         run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
 
-      - name: Upload Build Artifact
+      # 4a
+      - if: ${{ matrix.os == 'ubuntu-latest'}}
+        name: Upload Build Artifact for Linux
         uses: actions/upload-artifact@v4
         with:
-          name: binary-${{ matrix.c_compiler }}-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}
+          name: binary-${{ matrix.c_compiler }}-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-ort_${{ matrix.ort_version }} # add prefix ort_
           path: ${{ steps.strings.outputs.build-output-dir }}/*.so
   
-        
+      # 4b
+      - if: ${{ matrix.os == 'macos-latest'}}
+        name: Upload Build Artifact for MacOS
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-${{ matrix.c_compiler }}-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-ort_${{ matrix.ort_version }}
+          path: ${{ steps.strings.outputs.build-output-dir }}/*.dylib
+
+      # 4c
+      - if: ${{ matrix.os == 'windows-latest'}}
+        name: Upload Build Artifact for Windows
+        uses: actions/upload-artifact@v4
+        with:
+          name: binary-${{ matrix.c_compiler }}-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-ort_${{ matrix.ort_version }}
+          path: ${{ steps.strings.outputs.build-output-dir }}/*.dll
 
 
