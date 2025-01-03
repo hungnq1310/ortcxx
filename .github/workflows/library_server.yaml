@@ -138,6 +138,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: binary-${{ matrix.c_compiler }}-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-ort_${{ matrix.ort_version }}
-          path: ${{ steps.strings.outputs.build-output-dir }}\{{ matrix.build_type }}\*.dll
+          path: ${{ steps.strings.outputs.build-output-dir }}\${{ matrix.build_type }}\*.dll
 
 
