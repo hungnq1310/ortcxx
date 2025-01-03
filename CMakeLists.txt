@@ -23,6 +23,12 @@ set(LIB_NAME ortcxx)
 set(LIB_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/include)
 set(LIB_SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src/modules)
 set(LIB_PRIV_HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/src/headers)
+# for windows share libs
+if (WIN32)
+    set (CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+    set (BUILD_SHARED_LIBS TRUE)
+endif ()
+
 file(GLOB LIB_SRC_FILES 
   ${LIB_SRC_DIR}/**/*.cpp
 )
