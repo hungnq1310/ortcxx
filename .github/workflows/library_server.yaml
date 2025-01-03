@@ -74,11 +74,7 @@ jobs:
         id: strings
         shell: bash
         run: |
-          if [ "${{ matrix.os }}" == "windows-latest" ]; then
-            echo "build-output-dir=${{ github.workspace }}\build" >> "$GITHUB_OUTPUT"
-          else
-            echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
-          fi
+          echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
       # 2
       - uses: robinraju/release-downloader@v1
@@ -98,7 +94,7 @@ jobs:
       - name: Extract ort and rename folder (Windows)
         if: ${{ matrix.os == 'windows-latest' }}
         run: |
-          7z x -aoa ${{ github.workspace }}/libs/onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.${{ env.EXTENSION }} -o${{ github.workspace }}/libs
+          7z x -aoa ${{ github.workspace }}\libs\onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.${{ env.EXTENSION }} -o${{ github.workspace }}\libs
           mv ${{ github.workspace }}\libs\onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }} ${{ github.workspace }}\libs\onnxruntime
         shell: pwsh
 
