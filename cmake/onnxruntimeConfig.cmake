@@ -18,7 +18,7 @@ find_library(onnxruntime_LIBRARY onnxruntime PATHS "${onnxruntime_INSTALL_PREFIX
 
 add_library(onnxruntime SHARED IMPORTED)
 set_property(TARGET onnxruntime PROPERTY IMPORTED_LOCATION "${onnxruntime_LIBRARY}")
-set_target_properties(onnxruntime::onnxruntime PROPERTIES 
+set_target_properties(onnxruntime PROPERTIES 
     IMPORTED_CONFIGURATIONS ${CMAKE_BUILD_TYPE}
     INTERFACE_INCLUDE_DIRECTORIES ${onnxruntime_INCLUDE_DIRS}
 )
