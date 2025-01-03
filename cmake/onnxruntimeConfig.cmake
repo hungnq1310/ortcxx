@@ -18,7 +18,7 @@ find_library(onnxruntime_LIBRARY onnxruntime PATHS "${onnxruntime_INSTALL_PREFIX
 
 add_library(onnxruntime SHARED IMPORTED)
 set_property(TARGET onnxruntime PROPERTY IMPORTED_LOCATION "${onnxruntime_LIBRARY}")
-set_property(TARGET onnxruntime PROPERTY IMPORTED_IMPLIB "${onnxruntime_IMPLIB}")
+set_property(TARGET onnxruntime PROPERTY IMPORTED_IMPLIB "${onnxruntime_LIBRARY}")
 set_property(TARGET onnxruntime PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${onnxruntime_INCLUDE_DIRS}")
 set_property(TARGET onnxruntime PROPERTY INTERFACE_COMPILE_OPTIONS "${onnxruntime_CXX_FLAGS}")
 
