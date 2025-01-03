@@ -83,20 +83,20 @@ jobs:
           tag: 'v${{ matrix.ort_version }}' # include v prefix
           fileName: 'onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.${{ env.EXTENSION }}'
           out-file-path: 'libs'
-          extract: true
 
-      - name: Extract ort and rename folder (Unix)
-        if: ${{ matrix.os != 'windows-latest' }} # ubuntu & macos
-        run: |
-          tar -xzf ${{ github.workspace }}/libs/onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.${{ env.EXTENSION }} -C ${{ github.workspace }}/libs
-          mv ${{ github.workspace }}/libs/onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }} ${{ github.workspace }}/libs/onnxruntime
+      - name: Extract ORT
+        uses: ihiroky/extract-action@v1
+        with:
+          file_path: ${{ github.workspace }}/libs/onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.${{ env.EXTENSION }}
+          extract_dir: ${{ github.workspace }}/libs
 
-      - name: Extract ort and rename folder (Windows)
-        if: ${{ matrix.os == 'windows-latest' }}
+      - name: Rename folder
         run: |
-          7z x -aoa ${{ github.workspace }}\libs\onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.${{ env.EXTENSION }} -o${{ github.workspace }}\libs
-          mv ${{ github.workspace }}\libs\onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }} ${{ github.workspace }}\libs\onnxruntime
-        shell: pwsh
+          if [ "${{ matrix.os }}" == "ubuntu-latest" ] || [ "${{ matrix.os }}" == "macos-latest" ]; then
+            mv ${{ github.workspace }}/libs/onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }} ${{ github.workspace }}/libs/onnxruntime
+          elif [ "${{ matrix.os }}" == "windows-latest" ]; then
+            Rename-Item ${{ github.workspace }}\libs\onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }} onnxruntime
+          fi
 
       # 3: CORE
       - name: Configure CMake
