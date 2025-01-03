@@ -74,10 +74,11 @@ jobs:
         id: strings
         shell: bash
         run: |
-          if  [ "${{ matrix.os }}" == "windows-latest" ]; then
+          if [ "${{ matrix.os }}" == "windows-latest" ]; then
             echo "build-output-dir=${{ github.workspace }}\build" >> "$GITHUB_OUTPUT"
-          else
+          elif [ "${{ matrix.os }}" != "windows-latest" ]; then
             echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+          fi
 
       # 2
       - uses: robinraju/release-downloader@v1
