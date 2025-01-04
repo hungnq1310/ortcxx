@@ -1,14 +1,14 @@
-name: Build Library
+name: Build Server Library
 
 on:
   push:
     branches:
       - master
-      - 'dev/*'
+      - 'dev/v0.1'
   pull_request:
     branches:
       - master
-      - 'dev/*'
+      - 'dev/v0.1'
 
 jobs:
   build:

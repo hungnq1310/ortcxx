@@ -1,14 +1,14 @@
-name: Build Library
+name: Build Android Library
 
 on:
   push:
     branches:
       - master
-      - 'dev/*'
+      - 'dev/android'
   pull_request:
     branches:
       - master
-      - 'dev/*'
+      - 'dev/android'
 
 jobs:
   build:
@@ -72,13 +72,10 @@ jobs:
 
       - name: setup ndk
         uses: nttld/setup-ndk@v1
-          id: setup-ndk
-          with:
-            ndk-version: r21e
-            add-to-path: false
-        - run: ./build.sh
-          env:
-            ANDROID_NDK_HOME: 
+        id: setup-ndk
+        with:
+          ndk-version: r27e
+          add-to-path: false
 
       # 3 CORE
       - uses: seanmiddleditch/gha-setup-ninja@master
