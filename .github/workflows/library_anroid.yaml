@@ -98,5 +98,5 @@ jobs:
         name: Upload Build Artifact for Linux
         uses: actions/upload-artifact@v4
         with:
-          name: binary-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-ort_${{ matrix.ort_version }}-android_platform_${{ maxtrix.android_platform }}-adb_${{ matrix.android_architecture }} # add prefix ort_
+          name: binary-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-ort_${{ matrix.ort_version }}-android_platform_${{ matrix.android_platform }}-adb_${{ matrix.android_architecture }} # add prefix ort_
           path: ${{ steps.strings.outputs.build-output-dir }}/install/**
