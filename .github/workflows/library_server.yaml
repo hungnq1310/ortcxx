@@ -107,6 +107,7 @@ jobs:
         # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
         run: >
           cmake -B ${{ steps.strings.outputs.build-output-dir }}
+          -DCMAKE_INSTALL_PREFIX=${{ github.workspace }}/install
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
@@ -114,30 +115,22 @@ jobs:
 
       - name: Build
         # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
-        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }}
+        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} --target install
 
       # 4a
-      - if: ${{ matrix.os == 'ubuntu-latest'}}
+      - if: ${{ matrix.os == 'ubuntu-latest'}} || ${{ matrix.os == 'macos-latest'}}
         name: Upload Build Artifact for Linux
         uses: actions/upload-artifact@v4
         with:
           name: binary-${{ matrix.c_compiler }}-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-ort_${{ matrix.ort_version }} # add prefix ort_
-          path: ${{ steps.strings.outputs.build-output-dir }}/*.so
-  
-      # 4b
-      - if: ${{ matrix.os == 'macos-latest'}}
-        name: Upload Build Artifact for MacOS
-        uses: actions/upload-artifact@v4
-        with:
-          name: binary-${{ matrix.c_compiler }}-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-ort_${{ matrix.ort_version }}
-          path: ${{ steps.strings.outputs.build-output-dir }}/*.dylib
+          path: ${{ github.workspace }}/install/**
 
-      # 4c
+      # 4b
       - if: ${{ matrix.os == 'windows-latest'}}
         name: Upload Build Artifact for Windows
         uses: actions/upload-artifact@v4
         with:
           name: binary-${{ matrix.c_compiler }}-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-ort_${{ matrix.ort_version }}
-          path: ${{ steps.strings.outputs.build-output-dir }}\${{ matrix.build_type }}\*.dll
+          path: ${{ github.workspace }}\install\**
 
 
