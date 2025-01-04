@@ -81,7 +81,7 @@ jobs:
       # 3 CORE
       - uses: seanmiddleditch/gha-setup-ninja@master
       - run: >
-          cmake -G Ninja .. 
+          cmake -G Ninja .
           -B ${{ steps.strings.outputs.build-output-dir }} 
           -DCMAKE_INSTALL_PREFIX=${{ steps.strings.outputs.build-output-dir }}/install
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
