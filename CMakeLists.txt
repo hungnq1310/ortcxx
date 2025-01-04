@@ -56,7 +56,6 @@ target_link_libraries(pipeline ortcxx)
 #-----------------------------------------------------------------------------
 # Install header and library.
 #-----------------------------------------------------------------------------
-## ANDROID
 install(TARGETS ${LIB_NAME} hello pipeline
         RUNTIME DESTINATION bin
         LIBRARY DESTINATION lib
