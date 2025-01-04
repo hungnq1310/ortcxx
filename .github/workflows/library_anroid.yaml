@@ -67,7 +67,6 @@ jobs:
         # rename .aar to .zip
         run: |
           cd ${{ github.workspace }}/libs
-#          mv onnxruntime-training-android-${{ matrix.ort_version }}.aar onnxruntime-training-android-${{ matrix.ort_version }}.zip
           unzip -xzf onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.${{ env.EXTENSION }}
           mv onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }} onnxruntime
 
