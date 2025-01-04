@@ -66,9 +66,9 @@ jobs:
         # rename .aar to .zip
         run: |
           mkdir ${{ github.workspace }}/libs 
-          mv onnxruntime-training-android-${{ matrix.ort_version }}.zip ${{  github.workspace }}/libs
+          mv onnxruntime-training-android-${{ matrix.ort_version }}.zip ${{ github.workspace }}/libs
           cd ${{ github.workspace }}/libs
-          unzip -xzf onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.${{ env.EXTENSION }}
+          unzip -xzf onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.zip
           mv onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }} onnxruntime
 
       - name: setup ndk
