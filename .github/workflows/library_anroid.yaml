@@ -66,9 +66,10 @@ jobs:
       - name: Extract ort and rename folder (Unix)
         # rename .aar to .zip
         run: |
-          mv ${{ github.workspace }}/libs/onnxruntime-training-android-${{ matrix.ort_version }}.aar ${{ github.workspace }}/libs/onnxruntime-training-android-${{ matrix.ort_version }}.zip
-          unzip -xzf ${{ github.workspace }}/libs/onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.${{ env.EXTENSION }} -C ${{ github.workspace }}/libs
-          mv ${{ github.workspace }}/libs/onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }} ${{ github.workspace }}/libs/onnxruntime
+          cd ${{ github.workspace }}/libs
+          mv onnxruntime-training-android-${{ matrix.ort_version }}.aar onnxruntime-training-android-${{ matrix.ort_version }}.zip
+          unzip -xzf onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }}.${{ env.EXTENSION }}
+          mv onnxruntime-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-${{ matrix.ort_version }} onnxruntime
 
       - name: setup ndk
         uses: nttld/setup-ndk@v1
