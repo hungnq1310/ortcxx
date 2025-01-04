@@ -37,7 +37,7 @@ add_library(${LIB_NAME} SHARED ${LIB_HEADERS} ${LIB_PRIV_HEADERS} ${LIB_SRC_FILE
 
 ## ANDROID
 target_link_libraries(${LIB_NAME} ${LIB_ONNXRUNTIME_FILES})
-target_include_directories(${LIB_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/libs/onnxruntime-android/headers)
+target_include_directories(${LIB_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/libs/onnxruntime/headers)
 
 # 
 target_include_directories(${LIB_NAME} PUBLIC $<BUILD_INTERFACE:${LIB_HEADERS}> $<INSTALL_INTERFACE:include>)
