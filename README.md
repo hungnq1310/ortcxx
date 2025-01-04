@@ -1,9 +1,5 @@
 # ONNXRuntime CXX
 Cross-platform neural network inference based on OnnxRuntime C++
-## License
-[AGPL v3.0](LICENSE).<br>
-Copyright &copy; 2024 [Hieu Pham](https://github.com/hieupth). All rights reserved.
-
 
 ## Structure
 ```
@@ -56,7 +52,6 @@ config["parallel"] = false;
 config["inter_ops_threads"] = 1;
 config["intra_ops_threads"] = 1;
 config["graph_optimization_level"] = 1;
-config["<model_name>.onnx"] = "<model_name>";
 
 auto providers = Ort::GetAvailableProviders();
 Model model = Model(modelPath, config, providers, false);
@@ -108,7 +103,7 @@ Ort::Value* finalOutput = pipeline.postprocess(output);
 
 This code snippet demonstrates how to set up the necessary configuration, initialize the `Pipeline` class with the specified parameters, and use its methods for preprocessing, inference, and postprocessing.
 
-## WARNING
-Feature UPDATE:
-1. Initial Model not need to include `providers` because not used
-2. Current error `Segmentation Fault` when runing `./pipeline`
+## License
+[AGPL v3.0](LICENSE).<br>
+Copyright &copy; 2024 [Hieu Pham](https://github.com/hieupth). All rights reserved.
+
