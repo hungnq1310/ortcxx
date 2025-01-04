@@ -75,7 +75,7 @@ jobs:
         uses: nttld/setup-ndk@v1
         id: setup-ndk
         with:
-          ndk-version: r27e
+          ndk-version: r27b
           add-to-path: false
 
       # 3 CORE
