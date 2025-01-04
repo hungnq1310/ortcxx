@@ -13,7 +13,6 @@ namespace ortcxx::pipeline {
 class Pipeline {
 
     private:
-        // std::map<char*, float> sessionClock;
         std::chrono::steady_clock::time_point sessionClock;
         std::thread gc;
         std::mutex clockMutex;
@@ -22,6 +21,7 @@ class Pipeline {
         int sessionDuration = 500;
 
     public:
+        Pipeline() = default;
         Pipeline(shared_ptr<Model> model);
         ~Pipeline();
 
