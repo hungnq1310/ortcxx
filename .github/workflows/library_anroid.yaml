@@ -58,9 +58,9 @@ jobs:
 
       # 2
       - name: Download a file
-        run: >
-          wget https://repo1.maven.org/maven2/com/microsoft/onnxruntime/onnxruntime-training-android/${{ matrix.ort_version }}/onnxruntime-training-android-${{ matrix.ort_version }}.aar 
-          -O ${{ github.workspace }}/libs
+        run: |
+          wget https://repo1.maven.org/maven2/com/microsoft/onnxruntime/onnxruntime-training-android/${{ matrix.ort_version }}/onnxruntime-training-android-${{ matrix.ort_version }}.aar -O ${{ github.workspace }}/libs
+          ls -la ${{ github.workspace }}/libs
         # file aar
 
       - name: Extract ort and rename folder (Unix)
