@@ -59,9 +59,8 @@ jobs:
       # 2
       - name: Download a file
         run: >
-          curl https://repo1.maven.org/maven2/com/microsoft/onnxruntime/onnxruntime-training-android/${{ matrix.ort_version }}/onnxruntime-training-android-${{ matrix.ort_version }}.aar
-          --output-dir ${{ github.workspace }}/libs
-          -O onnxruntime-training-android-${{ matrix.ort_version }}.zip
+          curl -o ${{ github.workspace }}/libs/onnxruntime-training-android-${{ matrix.ort_version }}.zip
+          https://repo1.maven.org/maven2/com/microsoft/onnxruntime/onnxruntime-training-android/${{ matrix.ort_version }}/onnxruntime-training-android-${{ matrix.ort_version }}.aar
 
       - name: Extract ort and rename folder (Unix)
         # rename .aar to .zip
