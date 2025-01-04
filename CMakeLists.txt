@@ -11,7 +11,7 @@ cmake_policy(SET CMP0111 NEW)
 
 #* ONNXRUNTIME ANROID
 file(GLOB LIB_ONNXRUNTIME_FILES 
-  ${PROJECT_SOURCE_DIR}/libs/onnxruntime-android/jni/${ANDROID_ABI}/*.so
+  ${PROJECT_SOURCE_DIR}/libs/onnxruntime/jni/${ANDROID_ABI}/*.so
 )
 message("LIB_ONNXRUNTIME_FILES: ${LIB_ONNXRUNTIME_FILES}")
 
