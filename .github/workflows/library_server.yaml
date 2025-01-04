@@ -118,7 +118,7 @@ jobs:
         run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} --target install
 
       # 4a
-      - if: ${{ matrix.os == 'ubuntu-latest'}} || ${{ matrix.os == 'macos-latest'}}
+      - if: ${{ matrix.os != 'windows-latest'}}
         name: Upload Build Artifact for Linux
         uses: actions/upload-artifact@v4
         with:
