@@ -69,8 +69,7 @@ jobs:
           mv onnxruntime-training-android-${{ matrix.ort_version }}.zip ${{ github.workspace }}/libs
           cd ${{ github.workspace }}/libs
           ls -la ${{ github.workspace }}
-          unzip onnxruntime-training-android-${{ matrix.ort_version }}.zip
-          mv onnxruntime-training-android-${{ matrix.ort_version }} onnxruntime
+          unzip onnxruntime-training-android-${{ matrix.ort_version }}.zip -d ${{ github.workspace }}/libs/onnxruntime
 
       - name: setup ndk
         uses: nttld/setup-ndk@v1
