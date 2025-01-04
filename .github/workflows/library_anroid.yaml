@@ -62,7 +62,6 @@ jobs:
           wget https://repo1.maven.org/maven2/com/microsoft/onnxruntime/onnxruntime-training-android/${{ matrix.ort_version }}/onnxruntime-training-android-${{ matrix.ort_version }}.aar
           -P ${{ github.workspace }}/libs/
           -O onnxruntime-training-android-${{ matrix.ort_version }}.zip
-#         file aar
 
       - name: Extract ort and rename folder (Unix)
         # rename .aar to .zip
