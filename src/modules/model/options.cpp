@@ -1,6 +1,14 @@
 #include "model.h"
 #include <onnxruntime_cxx_api.h>
 
+#ifdef HAVE_NNAPI_PROVIDER_FACTORY
+#include "nnapi_provider_factory.h"
+#endif
+
+#ifdef HAVE_COREML_PROVIDER_FACTORY
+#include "coreml_provider_factory.h"
+#endif
+
 using namespace std;
 using namespace Ort;
 using namespace ortcxx::model;
@@ -26,30 +34,28 @@ bool ModelOptions::appendVINO(
 bool ModelOptions::appendNNAPI(
   optional<map<string, any>> options
 ) {
-  // fine the flag in options
   bool flag = false;  
   if (options.has_value()) {
     auto _options = options.value();
     auto it = _options.find("nnapi_flags");
     
-    // Key found
     if (it != _options.end()) {
       uint32_t nnapi_flags = std::any_cast<int>(it->second);
       try {
-        // try to append
-        // Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_Nnapi(
-        //   this->_sessOptions, 
-        //   nnapi_flags
-        // ));
-        // set
-        flag = true;
+#ifdef HAVE_NNAPI_PROVIDER_FACTORY
+          Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_Nnapi(
+            this->_sessOptions, 
+            nnapi_flags
+          ));
+          flag = true;
+#endif
       } catch (exception& e) {
         cout << "Error: " << e.what() << endl;
       }
     }
   }
   return flag;
-};
+}
 
 bool ModelOptions::appendCPU(
   optional<map<string, any>> options
@@ -60,31 +66,28 @@ bool ModelOptions::appendCPU(
 bool ModelOptions::appendCoreML(
   optional<map<string, any>> options
 ) {
-  // fine the flag in options
   bool flag = false;  
   if (options.has_value()) {
     auto _options = options.value();
     auto it = _options.find("coreml_flags");
     
-    // Key found
     if (it != _options.end()) {
       uint32_t coreml_flags = std::any_cast<int>(it->second);
       try {
-        // try to append
-        // Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_CoreML(
-        //   this->_sessOptions, 
-        //   coreml_flags
-        // ));
-        // set
+#ifdef HAVE_COREML_PROVIDER_FACTORY
+        Ort::ThrowOnError(OrtSessionOptionsAppendExecutionProvider_CoreML(
+          this->_sessOptions, 
+          coreml_flags
+        ));
         flag = true;
+#endif
       } catch (exception& e) {
         cout << "Error: " << e.what() << endl;
       }
     }
   }
   return flag;
-};
-
+}
 void checkStatusCUDA(OrtStatus* status) {
   if (status != nullptr) {
     cout << "Error: " << Ort::GetApi().GetErrorMessage(status) << endl;
