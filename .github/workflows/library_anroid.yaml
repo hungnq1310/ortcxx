@@ -110,7 +110,6 @@ jobs:
       matrix:
         #android config
         ort_version: ['1.19.0']
-        android_architecture: [arm64-v8a, armeabi-v7a, x86, x86_64]
         android_platform: [android-29]
         #os build
         os: [ubuntu-latest]
@@ -131,6 +130,8 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: binary-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-ort_${{ matrix.ort_version }}-android_platform_${{ matrix.android_platform }}-adb_arm64-v8a # add prefix ort_
+      - name: Display structure of downloaded files
+        run: ls -R
 
       - name: Download armeabi-v7a Artifact
         uses: actions/download-artifact@v4
