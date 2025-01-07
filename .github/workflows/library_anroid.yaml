@@ -151,16 +151,19 @@ jobs:
           path: ${{ github.workspace }}/x86_64
 
       # collect all install/libs/*.so files
-      - name: Collect all .so files and headers
+      - name: Collect only one headers
         run: |
           mkdir ${{ github.workspace }}/ortcxx
           mkdir ${{ github.workspace }}/ortcxx/include
-          cp -r ${{ github.workspace }}/arm64-v8a/install/include ${{ github.workspace }}/ortcxx/include
+          cp -r ${{ github.workspace }}/arm64-v8a/include ${{ github.workspace }}/ortcxx/include
+          
+      - name: Collect all .so files
+        run: |
           mkdir ${{ github.workspace }}/ortcxx/libs
-          cp -r ${{ github.workspace }}/arm64-v8a/install/lib/*.so ${{ github.workspace }}/ortcxx/libs/arm64-v8a
-          cp -r ${{ github.workspace }}/armeabi-v7a/install/lib/*.so ${{ github.workspace }}/ortcxx/libs/armeabi-v7a
-          cp -r ${{ github.workspace }}/x86/install/lib/*.so ${{ github.workspace }}/ortcxx/libs/x86
-          cp -r ${{ github.workspace }}/x86_64/install/lib/*.so ${{ github.workspace }}/ortcxx/libs/x86_64
+          cp -r ${{ github.workspace }}/arm64-v8a/libs/* ${{ github.workspace }}/ortcxx/libs
+          cp -r ${{ github.workspace }}/armeabi-v7a/libs/* ${{ github.workspace }}/ortcxx/libs
+          cp -r ${{ github.workspace }}/x86/libs/* ${{ github.workspace }}/ortcxx/libs
+          cp -r ${{ github.workspace }}/x86_64/libs/* ${{ github.workspace }}/ortcxx/libs
 
       - name: Archive all .so files and headers
         uses: actions/upload-artifact@v4
