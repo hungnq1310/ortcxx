@@ -160,10 +160,10 @@ jobs:
       - name: Collect all .so files
         run: |
           mkdir ${{ github.workspace }}/ortcxx/libs
-          cp -r ${{ github.workspace }}/arm64-v8a/libs/* ${{ github.workspace }}/ortcxx/libs
-          cp -r ${{ github.workspace }}/armeabi-v7a/libs/* ${{ github.workspace }}/ortcxx/libs
-          cp -r ${{ github.workspace }}/x86/libs/* ${{ github.workspace }}/ortcxx/libs
-          cp -r ${{ github.workspace }}/x86_64/libs/* ${{ github.workspace }}/ortcxx/libs
+          cp -r ${{ github.workspace }}/arm64-v8a/lib/*.so ${{ github.workspace }}/ortcxx/libs/arm64-v8a
+          cp -r ${{ github.workspace }}/armeabi-v7a/lib/*.so ${{ github.workspace }}/ortcxx/libs/armeabi-v7a
+          cp -r ${{ github.workspace }}/x86/lib/*.so ${{ github.workspace }}/ortcxx/libs/x86
+          cp -r ${{ github.workspace }}/x86_64/lib/*.so ${{ github.workspace }}/ortcxx/libs/x86_64
 
       - name: Archive all .so files and headers
         uses: actions/upload-artifact@v4
