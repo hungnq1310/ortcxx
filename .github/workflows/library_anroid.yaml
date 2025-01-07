@@ -130,36 +130,40 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: binary-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-ort_${{ matrix.ort_version }}-android_platform_${{ matrix.android_platform }}-adb_arm64-v8a # add prefix ort_
-      - name: Display structure of downloaded files
-        run: ls -R
+          path: ${{ github.workspace }}/arm64-v8a
 
       - name: Download armeabi-v7a Artifact
         uses: actions/download-artifact@v4
         with:
           name: binary-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-ort_${{ matrix.ort_version }}-android_platform_${{ matrix.android_platform }}-adb_armeabi-v7a # add prefix ort_
-      
+          path: ${{ github.workspace }}/armeabi-v7a
+
       - name: Download x86 Artifact
         uses: actions/download-artifact@v4
         with:
           name: binary-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-ort_${{ matrix.ort_version }}-android_platform_${{ matrix.android_platform }}-adb_x86 # add prefix ort_
+          path: ${{ github.workspace }}/x86
 
       - name: Download x86_64 Artifact
         uses: actions/download-artifact@v4
         with:
           name: binary-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-ort_${{ matrix.ort_version }}-android_platform_${{ matrix.android_platform }}-adb_x86_64 # add prefix ort_
+          path: ${{ github.workspace }}/x86_64
 
       # collect all install/libs/*.so files
       - name: Collect all .so files and headers
         run: |
-          mkdir ${{ github.workspace }}/include
-          cp -r ${{ github.workspace }}/libs/arm64-v8a/install/include ${{ github.workspace }}/include
-          mkdir ${{ github.workspace }}/libs
-          cp -r ${{ github.workspace }}/libs/arm64-v8a/install/lib/*.so ${{ github.workspace }}/libs/arm64-v8a
-          cp -r ${{ github.workspace }}/libs/armeabi-v7a/install/lib/*.so ${{ github.workspace }}/libs/armeabi-v7a
-          cp -r ${{ github.workspace }}/libs/x86/install/lib/*.so ${{ github.workspace }}/libs/x86
-          cp -r ${{ github.workspace }}/libs/x86_64/install/lib/*.so ${{ github.workspace }}/libs/x86_64
+          mkdir ${{ github.workspace }}/ortcxx
+          mkdir ${{ github.workspace }}/ortcxx/include
+          cp -r ${{ github.workspace }}/arm64-v8a/install/include ${{ github.workspace }}/ortcxx/include
+          mkdir ${{ github.workspace }}/ortcxx/libs
+          cp -r ${{ github.workspace }}/arm64-v8a/install/lib/*.so ${{ github.workspace }}/ortcxx/libs/arm64-v8a
+          cp -r ${{ github.workspace }}/armeabi-v7a/install/lib/*.so ${{ github.workspace }}/ortcxx/libs/armeabi-v7a
+          cp -r ${{ github.workspace }}/x86/install/lib/*.so ${{ github.workspace }}/ortcxx/libs/x86
+          cp -r ${{ github.workspace }}/x86_64/install/lib/*.so ${{ github.workspace }}/ortcxx/libs/x86_64
 
       - name: Archive all .so files and headers
         uses: actions/upload-artifact@v4
         with:
           name: binary-${{ env.OS_PLATFORM }}-${{ matrix.architecture }}-ort_${{ matrix.ort_version }}-android_platform_${{ matrix.android_platform }} # add prefix ort_
+          path: ${{ github.workspace }}/ortcxx
